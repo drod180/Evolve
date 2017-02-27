@@ -11,10 +11,11 @@ public class CreatureManager : MonoBehaviour {
 		creatureHealth = gameObject.GetComponent<CreatureHealth> ();
 		creatureMovement = gameObject.GetComponent<CreatureMovement> ();
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 		creatureHealth.HealthUpdate ();
 		creatureMovement.moveUpdate ();
 	}
+		
 }

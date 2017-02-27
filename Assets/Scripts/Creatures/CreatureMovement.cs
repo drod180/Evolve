@@ -24,6 +24,7 @@ public class CreatureMovement : MonoBehaviour {
 		move ();
 	}
 
+	// Move to next position
 	private void move () {
 		transform.position = Vector2.MoveTowards (transform.position, desiredPosition, moveSpeed * Time.deltaTime);
 	}
