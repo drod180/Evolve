@@ -8,7 +8,6 @@ public class CreatureGather : MonoBehaviour {
 	public int foodCapacity;
 	public int foodCollectRate;
 	public int foodCollectAmount;
-	public int lastGatherTime;
 	public Vector2 foodLocation;
 
 	// Use this for initialization
@@ -17,7 +16,6 @@ public class CreatureGather : MonoBehaviour {
 		foodCapacity = 5;
 		foodCollectRate = 3;
 		foodCollectAmount = 1;
-		lastGatherTime = Time.time;
 	}
 
 	public void gatherFood (Food foodSource) {
