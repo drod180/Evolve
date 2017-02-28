@@ -21,6 +21,9 @@ public class Creature : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D (Collider2D other) {
-		Debug.Log (other.tag);
+		if (other.tag == "Food") {
+			Food food = other.GetComponent<Food> ();
+			creatureMovement.addMoveLocation (food.foodLocation);
+		}
 	}
 }

@@ -8,6 +8,7 @@ public class CreatureGather : MonoBehaviour {
 	public int foodCapacity;
 	public int foodCollectRate;
 	public int foodCollectAmount;
+	public int lastGatherTime;
 	public Vector2 foodLocation;
 
 	// Use this for initialization
@@ -16,10 +17,10 @@ public class CreatureGather : MonoBehaviour {
 		foodCapacity = 5;
 		foodCollectRate = 3;
 		foodCollectAmount = 1;
+		lastGatherTime = Time.time;
 	}
 
-
-	public void collectFood (Food foodSource) {
+	public void gatherFood (Food foodSource) {
 		//Collect either foodCollectAmount or remaining capacity which ever is smaller.
 		int collectValue = foodCollectAmount > foodCapacity - currentFood ? foodCapacity - currentFood : foodCollectAmount;
 		currentFood += foodSource.giveFood (collectValue);
