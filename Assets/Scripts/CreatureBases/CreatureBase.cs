@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CreatureBaseManager : MonoBehaviour {
+public class CreatureBase : MonoBehaviour {
 
 	private BaseResources resourceManager;
 	private CreatureSpawner spawner;

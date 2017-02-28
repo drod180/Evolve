@@ -10,7 +10,7 @@ public class CreatureHealth : MonoBehaviour {
 
 	private float lastHealthUpdateTime;
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		health = 100;
 		healthDecayAmount = 10;
 		healthDecayRate = 5;

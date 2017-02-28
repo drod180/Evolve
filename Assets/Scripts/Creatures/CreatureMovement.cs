@@ -10,7 +10,7 @@ public class CreatureMovement : MonoBehaviour {
 	private float lastPositionTime;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		moveInterval = 2;
 		moveSpeed = 5;
 		desiredPosition.x = Random.Range (-5.0f, 5.0f);
