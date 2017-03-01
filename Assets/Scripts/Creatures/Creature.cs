@@ -26,4 +26,9 @@ public class Creature : MonoBehaviour {
 			creatureMovement.addMoveLocation (food.foodLocation);
 		}
 	}
+		
+	private void gatherFood(Food food) {
+		creatureGather.gatherFood (food);
+	}
+		
 }

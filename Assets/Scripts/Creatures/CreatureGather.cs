@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CreatureGather : MonoBehaviour {
 
+	public bool collecting;
 	public int currentFood;
 	public int foodCapacity;
 	public int foodCollectRate;
@@ -18,7 +19,21 @@ public class CreatureGather : MonoBehaviour {
 		foodCollectAmount = 1;
 	}
 
-	public void gatherFood (Food foodSource) {
+	public IEnumerator gatheringFood (Food foodSource) {
+		collecting = true;
+
+		yield return WaitForSeconds (0.5f);
+		while (collecting) {
+			gatherFood (foodSource);
+			yield return WaitForSeconds (foodCollectRate);
+		}
+	}
+
+	public void gatheringFinished () {
+		collecting = false;
+	}
+
+	private void gatherFood (Food foodSource) {
 		//Collect either foodCollectAmount or remaining capacity which ever is smaller.
 		int collectValue = foodCollectAmount > foodCapacity - currentFood ? foodCapacity - currentFood : foodCollectAmount;
 		currentFood += foodSource.giveFood (collectValue);
