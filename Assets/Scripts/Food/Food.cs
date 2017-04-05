@@ -20,8 +20,7 @@ public class Food : MonoBehaviour {
 		} else {
 			int temp = foodAmount;
 			foodAmount = 0;
-			destroySelf ();
-			Debug.Log ("temp: " + temp);
+			Invoke ("destroySelf", 1);
 			return temp;
 		}
 

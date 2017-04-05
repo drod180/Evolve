@@ -18,7 +18,7 @@ public class CreatureHealth : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	public void HealthUpdate () {
+	public void healthUpdate () {
 		updateHealth ();
 		checkStatus ();
 	}

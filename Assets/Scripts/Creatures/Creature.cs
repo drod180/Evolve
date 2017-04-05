@@ -16,19 +16,27 @@ public class Creature : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		creatureHealth.HealthUpdate ();
+		creatureHealth.healthUpdate ();
 		creatureMovement.moveUpdate ();
 	}
 
 	void OnTriggerEnter2D (Collider2D other) {
+		Vector2 otherPos = new Vector2 (other.transform.position.x, other.transform.position.y);
 		if (other.tag == "Food") {
 			Food food = other.GetComponent<Food> ();
-			creatureMovement.addMoveLocation (food.foodLocation);
+			creatureMovement.addMoveLocation (food.foodLocation, 1);
+			StartCoroutine (creatureGather.gatheringFood (food));
+		} else if (other.tag == "Base") {
+			if (otherPos == creatureGather.baseLocation) {
+				int foodValue = creatureGather.giveFood (1, true);
+				other.GetComponent<BaseResources> ().addFood (foodValue);
+				creatureMovement.removeMoveLocation (2);
+			}
 		}
 	}
-		
-	private void gatherFood(Food food) {
-		creatureGather.gatherFood (food);
+
+	void OnTriggerExit2D (Collider2D other) {
 	}
+
 		
 }

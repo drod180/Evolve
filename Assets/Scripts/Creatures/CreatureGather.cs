@@ -9,7 +9,10 @@ public class CreatureGather : MonoBehaviour {
 	public int foodCapacity;
 	public int foodCollectRate;
 	public int foodCollectAmount;
-	public Vector2 foodLocation;
+	public Food foodGatheringSource;
+	public Vector2 baseLocation;
+
+	private CreatureMovement creatureMovement;
 
 	// Use this for initialization
 	void Awake () {
@@ -17,26 +20,34 @@ public class CreatureGather : MonoBehaviour {
 		foodCapacity = 5;
 		foodCollectRate = 3;
 		foodCollectAmount = 1;
+		creatureMovement = gameObject.GetComponent<CreatureMovement> ();
 	}
 
 	public IEnumerator gatheringFood (Food foodSource) {
 		collecting = true;
-
-		yield return WaitForSeconds (0.5f);
+		foodGatheringSource = foodSource;
 		while (collecting) {
-			gatherFood (foodSource);
-			yield return WaitForSeconds (foodCollectRate);
+			yield return new WaitForSeconds (foodCollectRate);
+			gatherFood (foodGatheringSource);
 		}
 	}
 
-	public void gatheringFinished () {
+	public void completeGathering () {
 		collecting = false;
+		creatureMovement.addMoveLocation (baseLocation, 2);
 	}
 
 	private void gatherFood (Food foodSource) {
-		//Collect either foodCollectAmount or remaining capacity which ever is smaller.
-		int collectValue = foodCollectAmount > foodCapacity - currentFood ? foodCapacity - currentFood : foodCollectAmount;
-		currentFood += foodSource.giveFood (collectValue);
+		if (foodSource == null || foodSource.foodAmount == 0) {
+			creatureMovement.removeMoveLocation (1);
+			completeGathering ();
+		} else if (currentFood == foodCapacity) {
+			completeGathering ();
+		} else {
+			//Collect either foodCollectAmount or remaining capacity which ever is smaller.
+			int collectValue = foodCollectAmount > foodCapacity - currentFood ? foodCapacity - currentFood : foodCollectAmount;
+			currentFood += foodSource.giveFood (collectValue);
+		}
 	}
 
 	//All bool to allow for giving up all food defaulted to false

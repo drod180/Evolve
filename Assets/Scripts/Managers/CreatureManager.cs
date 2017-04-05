@@ -14,7 +14,7 @@ public class CreatureManager : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		creatureHealth.HealthUpdate ();
+		creatureHealth.healthUpdate ();
 		creatureMovement.moveUpdate ();
 	}
 		

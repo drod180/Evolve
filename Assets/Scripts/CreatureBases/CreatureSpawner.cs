@@ -14,6 +14,7 @@ public class CreatureSpawner : MonoBehaviour {
 	void Awake () {
 		population = 0;
 		spawnRate = 3;
+		homeCoords = transform.position;
 	}
 		
  	public void Spawn () {
@@ -21,5 +22,6 @@ public class CreatureSpawner : MonoBehaviour {
 
 		GameObject newCreature = (GameObject) Instantiate(creature, spawnPosition, transform.rotation);
 		population++;
+		newCreature.GetComponent<CreatureGather> ().baseLocation = homeCoords;
 	}
 }

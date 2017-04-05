@@ -15,7 +15,7 @@ public class CreatureBase : MonoBehaviour {
 	}
 
 	void Spawn () {
-		if (resourceManager.foodValue > resourceManager.creatureCost) {
+		if (resourceManager.foodValue >= resourceManager.creatureCost) {
 			resourceManager.removeFood (resourceManager.creatureCost);
 			spawner.Spawn ();
 		}
