@@ -38,18 +38,39 @@ public class CreatureMovement : MonoBehaviour {
 
 	/*
 	 * Priorities: 0 - Wander, 1 - Food, 2 - Home Base
+	 * Returns true if location was added, false if not
 	 */
-	public void addMoveLocation (Vector2 location, int priority = 0) {
-		if (targetList.Count == 0 || priority >= targetList.Peek ().priority) {
+	public bool addMoveLocation (Vector2 location, int priority = 0) {
+		if (targetList.Count == 0 || priority > targetList.Peek ().priority) {
 			CreatureTarget newCreatureTarget = new CreatureTarget (location, priority);
 			targetList.Push (newCreatureTarget);
+			return true;
 		}
+		return false;
 	}
 
-	public void removeMoveLocation (int prior) {
+	/*
+	 * Priorities: 0 - Wander, 1 - Food, 2 - Home Base
+	 * Returns true if location was removed, false if not
+	 */
+	public bool removeMoveLocation (int prior) {
 		if (prior == targetList.Peek ().priority) {
 			targetList.Pop ();
+			return true;
 		}
+
+		return false;
+	}
+
+	/*
+	 * Priorities: 0 - Wander, 1 - Food, 2 - Home Base
+	 * Returns true if location was updated, false if not
+	 */
+	public bool updateMoveLocation (Vector2 location, int prior) {
+		if (removeMoveLocation (prior)) {
+			return addMoveLocation (location, prior);
+		}
+		return false;
 	}
 
 	// Move to next position

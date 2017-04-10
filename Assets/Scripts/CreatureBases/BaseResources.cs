@@ -6,9 +6,11 @@ public class BaseResources : MonoBehaviour {
 
 	public int foodValue;
 	public int creatureCost;
+	public int health;
 
 	// Use this for initialization
 	void Awake () {
+		health = 1000;
 		foodValue = 100;
 		creatureCost = 10;
 	}
