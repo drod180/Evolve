@@ -17,6 +17,7 @@ public class Projectile : MonoBehaviour {
 		if (target == null) {
 			Destroy (gameObject);
 		} else {
+			faceObject ();
 			transform.position = Vector2.MoveTowards (transform.position, target.transform.position, moveSpeed * Time.deltaTime);
 		}
 	}
@@ -34,5 +35,10 @@ public class Projectile : MonoBehaviour {
 
 	private void damageCreature (CreatureHealth creature) {
 		creature.health -= damage;
+	}
+
+	private void faceObject () {
+		Vector3 vectorToTarget = target.transform.position - transform.position;
+		transform.LookAt(transform.position + new Vector3(0,0,1), vectorToTarget);
 	}
 }
