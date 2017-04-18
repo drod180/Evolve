@@ -18,5 +18,8 @@ public class FoodManager : MonoBehaviour {
 		newPosition.x = Random.Range (-5.0f, 5.0f);
 		newPosition.y = Random.Range (-5.0f, 5.0f);
 		GameObject newFood = (GameObject) Instantiate(food, newPosition, transform.rotation);
+		//Stops warning for now - DELETE
+		if (newFood) {
+		}
 	}
 }
