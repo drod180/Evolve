@@ -6,33 +6,33 @@ public class TileManager : MonoBehaviour {
 
 	public Vector2 mapSize = new Vector2 (40, 40);
 	public char[,] mapValues;
-	public char[] tileValues;
 
 	public GameObject tileEmpty;
 	public GameObject tileGrass;
 	public GameObject tileMountain;
 	public GameObject tileWater;
 
+	private int[,] fillValues;
+	private class FillDetails
+	{
+		public int value;
+		public int count;
+		public bool bigEnough;
+
+		public FillDetails(int val, int total, bool big) {
+			value = val;
+			count = total;
+			bigEnough = big;
+		}
+	}
+	private List<FillDetails> fillList;
+	private int startingSizeMin;
 	public void Start () {
-		InvokeRepeating ("buildWorld", 1, 5);
+		//InvokeRepeating ("buildWorld", 1, 5);
+		buildWorld ();
 	}
 
-	private void Update () {
-	}
-
-	private void buildWorld () {
-		SetTiles ();
-		AddTilesToWorld ();
-	}
-	private void SetTiles () {
-		initializeMapVars ((int)mapSize.x, (int)mapSize.y);
-		addGrasslands ();
-		addMountainlands ();
-		addWaterlands ();
-
-	}
-
-	private void AddTilesToWorld () {
+	public void AddTilesToWorld () {
 		for (int i = 0; i < mapSize.x; i++) {
 			for (int j = 0; j < mapSize.y; j++) {
 				Vector2 spawnPosition = new Vector2 ((float)i, (float)j);
@@ -55,34 +55,46 @@ public class TileManager : MonoBehaviour {
 		}
 
 	}
-
-	private void addWaterlands() {
-		int riverCount = Random.Range (1, 6);
-		for (int i = 0; i < riverCount; i++) {
-			buildTerrain (Random.Range (2, 4), 'W');
-		}
+		
+	public void buildWorld () {
+		SetTiles ();
+		findStartingSections ();
+		AddTilesToWorld ();
+		printFillArray ();
 	}
 
-	private void addMountainlands() {
-		int mountainCount = Random.Range (1, 5);
-		for (int i = 0; i < mountainCount; i++) {
-			buildTerrain (Random.Range (2, 4), 'M');
-		}
+	public void SetTiles () {
+		initializeMapVars ((int)mapSize.x, (int)mapSize.y);
+		addGrasslands ();
+		addMountainlands ();
+		addWaterlands ();
+
 	}
 
 	private void addGrasslands() {
 		for (int i = 0; i < mapSize.x; i++) {
 			for (int j = 0; j < mapSize.y; j++) {
 				mapValues [i, j] = 'G';
+				fillValues [i, j] = -1;
 			}
 		}
 	}
 
-	private void initializeMapVars (int x, int y) {
-		tileValues = new char[4] {'W', 'G', 'M', '?'};
-		mapValues = new char[x, y];
+	private void addMountainlands() {
+		int mountainCount = Random.Range (2, 5);
+		for (int i = 0; i < mountainCount; i++) {
+			buildTerrain (Random.Range (2, 4), 'M');
+		}
 	}
 
+
+	private void addWaterlands() {
+		int riverCount = Random.Range (2, 6);
+		for (int i = 0; i < riverCount; i++) {
+			buildTerrain (Random.Range (2, 4), 'W');
+		}
+	}
+	
 	private void buildTerrain (int size, char terrain) {
 		int maxSize = size * 2;
 		int minSize = (int)Mathf.Ceil(size / 2);
@@ -98,67 +110,6 @@ public class TileManager : MonoBehaviour {
 			currentSize = updateSize (currentSize, minSize, maxSize);
 			currentPos = updatePos (direction [currentDirVal], currentPos);
 		}
-	}
-
-	private int updateSize (int size, int minSize, int maxSize) {
-		int changeSize = Random.Range (0, 6);
-		if (changeSize == 0 && size < maxSize) {
-			size += 1;
-		} else if (changeSize == 1 && size > minSize) {
-			size -= 1;
-		}
-
-		return size;
-	}
-
-	private int[] updatePos (string dir, int[] pos) {
-		switch (dir) {
-		case "N":
-			pos = new int[2] { pos [0], pos [1] + 1 };
-			break;
-		case "NE":
-			pos = new int[2] { pos [0] + 1, pos [1] + 1 };
-			break;
-		case "E":
-			pos = new int[2] { pos [0] + 1, pos [1] };
-			break;
-		case "SE":
-			pos = new int[2] { pos [0] + 1, pos [1] - 1 };
-			break;
-		case "S":
-			pos = new int[2] { pos [0], pos [1] - 1};
-			break;
-		case "SW":
-			pos = new int[2] { pos [0] - 1, pos [1] - 1};
-			break;
-		case "W":
-			pos = new int[2] { pos [0] - 1, pos [1] };
-			break;
-		case "NW":
-			pos = new int[2] { pos [0] - 1, pos [1] + 1};
-			break;
-		default:
-			Debug.LogError ("Invalid river direction: " + dir);
-			break;
-		}
-
-		return pos;
-	}
-
-	private int updateDir (int currentDir) {
-		
-		int dirChange = Random.Range (0, 6);
-		if (dirChange == 0) {
-			currentDir += 1;
-		} else if (dirChange == 1) {
-			if (currentDir == 0) {
-				currentDir = 7;
-			} else {
-				currentDir -= 1;
-			}
-		}
-
-		return currentDir % 8;
 	}
 
 	private void buildTerrainPiece (string dir, int[] coord, int size, char terrain) {
@@ -227,8 +178,124 @@ public class TileManager : MonoBehaviour {
 			}
 
 		}
+	}	
+
+	private void findStartingSections () {
+		int floodCount = 0;
+		int floodTileCount = 0;
+		bool floodBigEnough = true;
+
+		for (int i = 0; i < mapSize.x; i++) {
+			for (int j = 0; j < mapSize.y; j++) {
+				if (mapValues [i, j] == 'G' && fillValues [i, j] == -1) {
+					floodTileCount = floodFill (new int[2] { i, j }, 'G' , (char)floodCount, 0);
+					floodBigEnough = floodTileCount >= startingSizeMin;
+					fillList.Add(new FillDetails(floodCount, floodTileCount, floodBigEnough));
+					floodCount++;
+				}
+			}
+		}
+
+		for (int i = 0; i < fillList.Count; i++) {
+			Debug.Log ("value: " + fillList [i].value + "| count: " + fillList [i].count);
+		}
 	}
 
+	private int floodFill (int[] node, char targetType, int markingValue, int tileCount) {
+		if (targetType == markingValue || 
+			mapValues [node [0], node [1]] != targetType ||
+			fillValues [node [0], node [1]] == markingValue) {
+			return tileCount;
+		}
+
+		fillValues [node [0], node [1]] = markingValue;
+		tileCount++;
+
+		if (node [1] - 1 >= 0) {
+			tileCount = floodFill (new int[2] { node [0], (node [1] - 1) }, targetType, markingValue, tileCount);
+		}
+		if (node [1] + 1 < mapSize.y) {
+			tileCount = floodFill (new int[2] { node [0], (node [1] + 1) }, targetType, markingValue, tileCount); 
+		}
+		if (node [0] - 1 >= 0) {
+			tileCount = floodFill (new int[2] { (node [0] - 1), node [1] }, targetType, markingValue, tileCount); 
+		}
+		if (node [0] + 1 < mapSize.x) {
+			tileCount = floodFill (new int[2] { (node [0] + 1), node [1] }, targetType, markingValue, tileCount);
+		}
+			
+		return tileCount;
+	}
+
+	private void initializeMapVars (int x, int y) {
+		mapValues = new char[x, y];
+		fillValues = new int[x, y];
+		fillList = new List<FillDetails>();
+		startingSizeMin = 100;
+	}
+	
+	private int updateDir (int currentDir) {
+
+		int dirChange = Random.Range (0, 6);
+		if (dirChange == 0) {
+			currentDir += 1;
+		} else if (dirChange == 1) {
+			if (currentDir == 0) {
+				currentDir = 7;
+			} else {
+				currentDir -= 1;
+			}
+		}
+
+		return currentDir % 8;
+	}	
+
+	private int[] updatePos (string dir, int[] pos) {
+		switch (dir) {
+		case "N":
+			pos = new int[2] { pos [0], pos [1] + 1 };
+			break;
+		case "NE":
+			pos = new int[2] { pos [0] + 1, pos [1] + 1 };
+			break;
+		case "E":
+			pos = new int[2] { pos [0] + 1, pos [1] };
+			break;
+		case "SE":
+			pos = new int[2] { pos [0] + 1, pos [1] - 1 };
+			break;
+		case "S":
+			pos = new int[2] { pos [0], pos [1] - 1};
+			break;
+		case "SW":
+			pos = new int[2] { pos [0] - 1, pos [1] - 1};
+			break;
+		case "W":
+			pos = new int[2] { pos [0] - 1, pos [1] };
+			break;
+		case "NW":
+			pos = new int[2] { pos [0] - 1, pos [1] + 1};
+			break;
+		default:
+			Debug.LogError ("Invalid river direction: " + dir);
+			break;
+		}
+
+		return pos;
+	}
+
+	private int updateSize (int size, int minSize, int maxSize) {
+		int changeSize = Random.Range (0, 6);
+		if (changeSize == 0 && size < maxSize) {
+			size += 1;
+		} else if (changeSize == 1 && size > minSize) {
+			size -= 1;
+		}
+
+		return size;
+	}
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Debugging~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	private void printMapArray () {
 		string tempLog = "";
 		for (int i = 0; i < mapSize.x; i++) {
@@ -247,6 +314,26 @@ public class TileManager : MonoBehaviour {
 				default:
 					tempLog += "<color=red>████</color>";
 					break;
+				}
+			}
+			Debug.Log (tempLog + "\n" + tempLog);
+		}
+
+	}
+
+	private void printFillArray () {
+		string tempLog = "";
+		for (int i = 0; i < mapSize.x; i++) {
+			tempLog = "";
+			for (int j = 0; j < mapSize.y; j++) {
+				if (fillValues [i, j] == -1) {
+					tempLog += "<color=black>████</color>";
+				} else if (fillList [fillValues [i, j]].bigEnough) {
+					tempLog += "<color=green>████</color>";
+				} else if (!fillList [fillValues [i, j]].bigEnough) {
+					tempLog += "<color=red>████</color>";
+				} else {
+					tempLog += "<color=white>████</color>";
 				}
 			}
 			Debug.Log (tempLog + "\n" + tempLog);
