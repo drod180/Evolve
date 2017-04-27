@@ -11,6 +11,7 @@ public class TileManager : MonoBehaviour {
 	public GameObject tileGrass;
 	public GameObject tileMountain;
 	public GameObject tileWater;
+	public CreatureBase creatureBase;
 
 	private int[,] fillValues;
 	private class FillDetails
@@ -58,9 +59,10 @@ public class TileManager : MonoBehaviour {
 		
 	public void buildWorld () {
 		SetTiles ();
-		findStartingSections ();
+		populateFillList ();
 		AddTilesToWorld ();
-		printFillArray ();
+		addStartingPoints (1);
+		//printFillArray ();
 	}
 
 	public void SetTiles () {
@@ -180,7 +182,7 @@ public class TileManager : MonoBehaviour {
 		}
 	}	
 
-	private void findStartingSections () {
+	private void populateFillList () {
 		int floodCount = 0;
 		int floodTileCount = 0;
 		bool floodBigEnough = true;
@@ -194,10 +196,6 @@ public class TileManager : MonoBehaviour {
 					floodCount++;
 				}
 			}
-		}
-
-		for (int i = 0; i < fillList.Count; i++) {
-			Debug.Log ("value: " + fillList [i].value + "| count: " + fillList [i].count);
 		}
 	}
 
@@ -294,7 +292,49 @@ public class TileManager : MonoBehaviour {
 
 		return size;
 	}
+		
+	private bool placeStartPoint (int minX, int maxX, int minY, int maxY, int team, int attempts) {
+		bool placed = false;
+		for (int i = 0; i < attempts && !placed; i++) {
+			int[] startingPoint = new int[2] { Random.Range (minX, maxX), Random.Range (minY, maxY) };
+			if (mapValues[startingPoint[0], startingPoint[1]] == 'G' && fillList[fillValues[startingPoint[0], startingPoint[1]]].bigEnough) {
+				placed = true;
+				Vector2 spawnPosition = new Vector2 (startingPoint [0], startingPoint [1]);
+				CreatureBase newCreatureBase = (CreatureBase) Instantiate(creatureBase, spawnPosition, transform.rotation);
+				newCreatureBase.team = team;
+			}
+		}
 
+		return placed;
+	}
+
+	private bool addStartingPoints (int teamCount) {
+		float[] start = { 0, 0.333f }; 
+		float[] mid = { 0.333f, 0.667f }; 
+		float[] end = { 0.667f, 1f };
+		float[][] sections =
+		{
+			{start[0],start[1],start[0],start[1]},
+			{end[0],end[1], end[0],end[1]},
+			{start, end[0],end[1]},
+			{end[0],end[1], start[0],start[1]},
+			{mid[0],mid[1] , mid[0],mid[1] },
+			{end[0],end[1], mid[0],mid[1] },
+			{start[0],start[1], mid[0],mid[1] },
+			{mid[0],mid[1] , end[0],end[1]},
+			{mid[0],mid[1] , start[0],start[1]}
+		};
+		int team = 0;
+
+		for(int i = 0; i < sections.Length && teamCount > team; i++) {
+			Debug.Log(sections[i][0]);
+			Debug.Log(sections[i][1]);
+			Debug.Log("~~~~~~~~~~~~~");
+			//placeStartPoint (sections[i][0], 70, 0, 40, team, 10);
+		}
+
+	}
+		
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Debugging~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	private void printMapArray () {
 		string tempLog = "";
