@@ -25,8 +25,9 @@ public class CreatureMovement : MonoBehaviour {
 		moveInterval = 2;
 		moveSpeed = 5;
 		targetList = new Stack<CreatureTarget> ();
-		desiredPosition.x = Random.Range (-5.0f, 5.0f);
-		desiredPosition.y = Random.Range (-5.0f, 5.0f);
+		Vector2 currentPosition = transform.position;
+		desiredPosition.x = Random.Range (currentPosition.x - 5.0f, currentPosition.x + 5.0f);
+		desiredPosition.y = Random.Range (currentPosition.y - 5.0f, currentPosition.y + 5.0f);
 		addMoveLocation (desiredPosition);
 		creatureGather = gameObject.GetComponent<CreatureGather> ();
 	}
@@ -90,10 +91,10 @@ public class CreatureMovement : MonoBehaviour {
 	private void getNewPosition () {
 
 		if (targetList.Count == 0) {
-
+			Vector2 currentPosition = transform.position;
 			Vector2 newPosition;
-			newPosition.x = Random.Range (-5.0f, 5.0f);
-			newPosition.y = Random.Range (-5.0f, 5.0f);
+			newPosition.x = Random.Range (currentPosition.x - 5.0f, currentPosition.x + 5.0f);
+			newPosition.y = Random.Range (currentPosition.y - 5.0f, currentPosition.y + 5.0f);
 
 			addMoveLocation (newPosition);
 		} 

@@ -28,8 +28,11 @@ public class TileManager : MonoBehaviour {
 	}
 	private List<FillDetails> fillList;
 	private int startingSizeMin;
+
+	private int debugCountPass = 0;
+	private int debugCountTotal = 0;
+
 	public void Start () {
-		//InvokeRepeating ("buildWorld", 1, 5);
 		buildWorld ();
 	}
 
@@ -61,7 +64,10 @@ public class TileManager : MonoBehaviour {
 		SetTiles ();
 		populateFillList ();
 		AddTilesToWorld ();
-		addStartingPoints (1);
+		bool addedStarting = false;
+		while (!addedStarting) {
+			addedStarting = addStartingPoints (9);
+		}
 		//printFillArray ();
 	}
 
@@ -229,7 +235,7 @@ public class TileManager : MonoBehaviour {
 		mapValues = new char[x, y];
 		fillValues = new int[x, y];
 		fillList = new List<FillDetails>();
-		startingSizeMin = 100;
+		startingSizeMin = (int)(mapSize.x * mapSize.y / 10);
 	}
 	
 	private int updateDir (int currentDir) {
@@ -309,30 +315,31 @@ public class TileManager : MonoBehaviour {
 	}
 
 	private bool addStartingPoints (int teamCount) {
-		float[] start = { 0, 0.333f }; 
-		float[] mid = { 0.333f, 0.667f }; 
-		float[] end = { 0.667f, 1f };
-		float[][] sections =
+		float[] start = new float[] { 0, 0.333f }; 
+		float[] mid = new float[] { 0.333f, 0.667f }; 
+		float[] end = new float[] { 0.667f, 1f };
+		float[][] sections = new float[9][]
 		{
-			{start[0],start[1],start[0],start[1]},
-			{end[0],end[1], end[0],end[1]},
-			{start, end[0],end[1]},
-			{end[0],end[1], start[0],start[1]},
-			{mid[0],mid[1] , mid[0],mid[1] },
-			{end[0],end[1], mid[0],mid[1] },
-			{start[0],start[1], mid[0],mid[1] },
-			{mid[0],mid[1] , end[0],end[1]},
-			{mid[0],mid[1] , start[0],start[1]}
+			new float[4] { start[0],start[1],start[0],start[1] },
+			new float[4] { end[0], end[1], end[0],end[1] },
+			new float[4] { start[0],start[1], end[0],end[1] },
+			new float[4] { end[0], end[1], start[0],start[1] },
+			new float[4] { mid[0], mid[1], mid[0],mid[1] },
+			new float[4] { end[0], end[1], mid[0],mid[1] },
+			new float[4] { start[0], start[1], mid[0],mid[1] },
+			new float[4] { mid[0], mid[1], end[0],end[1]},
+			new float[4] { mid[0], mid[1], start[0],start[1]}
 		};
 		int team = 0;
-
+		bool placed;
 		for(int i = 0; i < sections.Length && teamCount > team; i++) {
-			Debug.Log(sections[i][0]);
-			Debug.Log(sections[i][1]);
-			Debug.Log("~~~~~~~~~~~~~");
-			//placeStartPoint (sections[i][0], 70, 0, 40, team, 10);
+			placed = false;
+			placed = placeStartPoint ((int)(sections[i][0] * mapSize.x), (int)(sections[i][1] * mapSize.x), (int)(sections[i][2] * mapSize.y), (int)(sections[i][3] * mapSize.y), team, 5);
+			if (placed) {
+				team++;
+			}
 		}
-
+		return teamCount == team;
 	}
 		
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Debugging~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -379,5 +386,12 @@ public class TileManager : MonoBehaviour {
 			Debug.Log (tempLog + "\n" + tempLog);
 		}
 
+	}
+
+	private void printStats () {
+		Debug.Log ("Pass: <color=green>" + debugCountPass + "</color>");
+		Debug.Log ("Fail: <color=red>" + (debugCountTotal - debugCountPass) + "</color>");
+		Debug.Log ("Total: <color=black>" + debugCountTotal + "</color>");
+		Debug.Log ("%: <color=blue>" + (((float)debugCountPass / (float)debugCountTotal) * 100) + "</color>");
 	}
 }
