@@ -8,7 +8,7 @@ public class Creature : MonoBehaviour {
 
 	private CreatureHealth creatureHealth;
 	private CreatureMovement creatureMovement;
-	private CreatureGather creatureGather;
+	public CreatureGather creatureGather;
 	private CreatureCombat creatureCombat;
 	// Use this for initialization
 	void Start () {
@@ -33,20 +33,19 @@ public class Creature : MonoBehaviour {
 		} else if (other.tag == "Base") {
 			if (otherPos == creatureGather.baseLocation) {
 				int foodValue = creatureGather.giveFood (1, true);
-				other.GetComponent<BaseResources> ().addFood (foodValue);
+				BaseResources otherBase = other.GetComponent<BaseResources> ();
+				if (otherBase) {
+					otherBase.addFood (foodValue);
+				}
 				creatureMovement.removeMoveLocation (2);
 			}
 		} else if (other.tag == "Creature") {
 			Creature creature = other.GetComponent<Creature> ();
-			if (!creatureCombat.fighting && creature.creatureTeam != creatureTeam) {
+			if (creature && !creatureCombat.fighting && creature.creatureTeam != creatureTeam) {
 				creatureMovement.addMoveLocation (creature.transform.position, 3);
 				StartCoroutine (creatureCombat.attackingOpponent (creature));
 			}
 		}
 	}
-
-	void OnTriggerExit2D (Collider2D other) {
-	}
-
 		
 }

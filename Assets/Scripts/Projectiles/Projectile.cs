@@ -34,7 +34,9 @@ public class Projectile : MonoBehaviour {
 	}
 
 	private void damageCreature (CreatureHealth creature) {
-		creature.health -= damage;
+		if (creature) {
+			creature.takeDamage (damage);
+		}
 	}
 
 	private void faceObject () {

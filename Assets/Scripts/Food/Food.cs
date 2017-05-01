@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class Food : MonoBehaviour {
 
-	public int foodAmount;
+	public int foodAmount = 0;
+	public int decayRate = 10;
+	public FoodManager manager;
 	public Vector2 foodLocation;
 
 	// Use this for initialization
 	void Awake () {
-		foodAmount = 30;
 		foodLocation = transform.position;
+		InvokeRepeating ("decay", decayRate, decayRate);
 	}
 
 	public int giveFood (int value) {
@@ -26,7 +28,12 @@ public class Food : MonoBehaviour {
 
 	}
 
+	private void decay () {
+		giveFood (1);
+	}
+
 	private void destroySelf () {
 		Destroy (gameObject);
+		manager.population = manager.population - 1;
 	}
 }

@@ -79,6 +79,7 @@ public class CreatureMovement : MonoBehaviour {
 		Vector2 movePos = targetList.Peek ().position;
 		int movePriority = targetList.Peek ().priority;
 		transform.position = Vector2.MoveTowards (transform.position, movePos, moveSpeed * Time.deltaTime);
+		faceObject ((Vector3)movePos);
 
 		if (movePriority == 0 && arrivedAtLocation ()) {
 			removeMoveLocation (0);
@@ -102,5 +103,10 @@ public class CreatureMovement : MonoBehaviour {
 
 	private bool arrivedAtLocation () {
 		return targetList.Peek ().position == new Vector2 (transform.position.x, transform.position.y);
+	}
+
+	private void faceObject (Vector3 target) {
+		Vector3 vectorToTarget = target - transform.position;
+		transform.LookAt(transform.position + new Vector3(0,0,1), vectorToTarget);
 	}
 }

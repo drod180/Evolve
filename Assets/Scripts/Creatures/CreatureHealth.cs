@@ -5,22 +5,27 @@ using UnityEngine;
 public class CreatureHealth : MonoBehaviour {
 
 	public int health;
-	public int healthDecayAmount;
-	public int healthDecayRate;
+	public int age;
+	public int maxAge;
+	public int ageRate;
 
-	private float lastHealthUpdateTime;
 	// Use this for initialization
 	void Awake () {
 		health = 100;
-		healthDecayAmount = 10;
-		healthDecayRate = 5;
-		lastHealthUpdateTime = Time.time;
+		age = 0;
+		maxAge = 100;
+		ageRate = 10;
+		InvokeRepeating ("updateAge", ageRate, ageRate);
 	}
 	
 	// Update is called once per frame
 	public void healthUpdate () {
-		updateHealth ();
 		checkStatus ();
+	}
+
+	public void takeDamage (int damage) {
+		health -= damage;
+		destroyCreature ();
 	}
 
 	private void checkStatus () {
@@ -28,18 +33,17 @@ public class CreatureHealth : MonoBehaviour {
 			destroyCreature ();
 		}
 	}
+		
+
+	private void updateAge () {
+		age++;
+		destroyCreature ();
+	}
 
 	private void destroyCreature () {
-		Destroy (gameObject);
-	}
-
-	private void updateHealth () {
-		if (Time.time > lastHealthUpdateTime + healthDecayRate) {
-			lastHealthUpdateTime = Time.time;
-
-			health -= healthDecayAmount;
+		if (age == maxAge || health <= 0) {
+			Destroy (gameObject);
 		}
 	}
-		
 
 }
