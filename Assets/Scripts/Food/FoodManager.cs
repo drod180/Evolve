@@ -7,12 +7,12 @@ public class FoodManager : MonoBehaviour {
 	public Food food;
 	public string foodType = "fruit";
 
-	public int spawnRate = 0;
-	public int spawnRange = 0;
-	public int population = 0;
-	public int populationLimit = 0;
-	public int startingAmount = 0;
-	public int decayRate = 0;
+	private int spawnRate = 0;
+	private int spawnRange = 0;
+	private int population = 0;
+	private int populationLimit = 0;
+	private int startingAmount = 0;
+	private int decayRate = 0;
 
 	private Dictionary<string, Dictionary<string, int>> foodSpawnValues = new Dictionary<string, Dictionary<string, int>>
 	{
@@ -48,14 +48,6 @@ public class FoodManager : MonoBehaviour {
 				{"startingAmount", 3},
 				{"decayRate", 5}
 			}
-		},{ "meat", new Dictionary<string, int>
-			{ 
-				{"spawnRate", 0}, 
-				{"spawnRange", 1}, 
-				{"populationLimit", 1}, 
-				{"startingAmount", 60},
-				{"decayRate", 10}
-			}
 		}
 	};
 
@@ -66,7 +58,11 @@ public class FoodManager : MonoBehaviour {
 		population = 0;
 		InvokeRepeating ("Spawn", spawnRate, spawnRate);
 	}
-	      
+
+	public void reducePopulation (int value) {
+		population -= value;
+	}
+
 	// Update is called once per frame
 	private void Spawn () {
 		if (population < populationLimit) {
@@ -94,6 +90,8 @@ public class FoodManager : MonoBehaviour {
 			Debug.LogError ("Invalid food type");
 		}
 	}
+
+
 
 	private void destroySelf () {
 		Destroy (gameObject);

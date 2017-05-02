@@ -34,6 +34,6 @@ public class Food : MonoBehaviour {
 
 	private void destroySelf () {
 		Destroy (gameObject);
-		manager.population = manager.population - 1;
+		manager.reducePopulation(1);
 	}
 }
