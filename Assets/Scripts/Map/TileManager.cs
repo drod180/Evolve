@@ -11,7 +11,7 @@ public class TileManager : MonoBehaviour {
 	public GameObject tileGrass;
 	public GameObject tileMountain;
 	public GameObject tileWater;
-	public CreatureBase creatureBase;
+	public SpeciesManager speciesManager;
 
 	private int[,] fillValues;
 	private class FillDetails
@@ -299,15 +299,15 @@ public class TileManager : MonoBehaviour {
 		return size;
 	}
 		
-	private bool placeStartPoint (int minX, int maxX, int minY, int maxY, int team, int attempts) {
+	private bool placeStartPoint (int minX, int maxX, int minY, int maxY, int speciesNumber, int attempts) {
 		bool placed = false;
 		for (int i = 0; i < attempts && !placed; i++) {
 			int[] startingPoint = new int[2] { Random.Range (minX, maxX), Random.Range (minY, maxY) };
 			if (mapValues[startingPoint[0], startingPoint[1]] == 'G' && fillList[fillValues[startingPoint[0], startingPoint[1]]].bigEnough) {
 				placed = true;
 				Vector2 spawnPosition = new Vector2 (startingPoint [0], startingPoint [1]);
-				CreatureBase newCreatureBase = (CreatureBase) Instantiate(creatureBase, spawnPosition, transform.rotation);
-				newCreatureBase.team = team;
+				SpeciesManager newSpecies = (SpeciesManager) Instantiate(speciesManager, spawnPosition, transform.rotation);
+				newSpecies.speciesNumber = speciesNumber;
 			}
 		}
 

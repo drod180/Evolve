@@ -5,6 +5,7 @@ using UnityEngine;
 public class Creature : MonoBehaviour {
 
 	public int creatureTeam = 0;
+	public Color creatureColor = new Color (1, 1, 1, 1);
 
 	private CreatureHealth creatureHealth;
 	private CreatureMovement creatureMovement;
@@ -16,6 +17,7 @@ public class Creature : MonoBehaviour {
 		creatureMovement = gameObject.GetComponent<CreatureMovement> ();
 		creatureGather = gameObject.GetComponent<CreatureGather> ();
 		creatureCombat = gameObject.GetComponent<CreatureCombat> ();
+		gameObject.GetComponent<SpriteRenderer> ().color = creatureColor;
 	}
 
 	// Update is called once per frame

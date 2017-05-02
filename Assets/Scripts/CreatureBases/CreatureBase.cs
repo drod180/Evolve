@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class CreatureBase : MonoBehaviour {
 
-	public int team;
-
+	public int speciesNumber;
+	public Color speciesColor;
 	private BaseResources resourceManager;
 	private CreatureSpawner spawner;
 
@@ -13,7 +13,8 @@ public class CreatureBase : MonoBehaviour {
 	void Start () {
 		resourceManager = gameObject.GetComponent<BaseResources> ();
 		spawner = gameObject.GetComponent<CreatureSpawner> ();
-		spawner.team = team;
+		spawner.speciesNumber = speciesNumber;
+		spawner.speciesColor = speciesColor;
 		InvokeRepeating ("Spawn", spawner.spawnRate, spawner.spawnRate);
 	}
 

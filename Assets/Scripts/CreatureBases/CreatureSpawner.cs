@@ -7,7 +7,8 @@ public class CreatureSpawner : MonoBehaviour {
 	public GameObject creature;
 	public Vector2 homeCoords;
 	public float spawnRate;
-	public int team = 0;
+	public int speciesNumber = 0;
+	public Color speciesColor;
 
 	private int population;
 
@@ -23,7 +24,8 @@ public class CreatureSpawner : MonoBehaviour {
 
 		GameObject newCreature = (GameObject) Instantiate(creature, spawnPosition, transform.rotation);
 		population++;
-		newCreature.GetComponent<Creature> ().creatureTeam = team;
+		newCreature.GetComponent<Creature> ().creatureTeam = speciesNumber;
+		newCreature.GetComponent<Creature> ().creatureColor = speciesColor;
 		newCreature.GetComponent<CreatureGather> ().baseLocation = homeCoords;
 	}
 }
