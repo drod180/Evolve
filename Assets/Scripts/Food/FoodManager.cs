@@ -71,6 +71,7 @@ public class FoodManager : MonoBehaviour {
 			newPosition.x = Random.Range (currentPosition.x - (float)spawnRange, currentPosition.x + (float)spawnRange);
 			newPosition.y = Random.Range (currentPosition.y - (float)spawnRange, currentPosition.y + (float)spawnRange);
 			Food newFood = (Food)Instantiate (food, newPosition, transform.rotation);
+			newFood.transform.parent = this.transform;
 			newFood.manager = this;
 			newFood.foodAmount = startingAmount;
 			newFood.decayRate = decayRate;

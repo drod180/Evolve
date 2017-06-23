@@ -15,10 +15,6 @@ public class CreatureCombat : MonoBehaviour {
 	private CreatureMovement creatureMovement;
 	// Use this for initialization
 	void Awake () {
-		attackSpeed = 3;
-		projectileSpeed = 3;
-		damage = 10;
-		attackRange = 20;
 		creatureMovement = gameObject.GetComponent<CreatureMovement> ();
 	}
 		

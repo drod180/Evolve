@@ -11,7 +11,7 @@ public class BaseResources : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
 		health = 1000;
-		foodValue = 100;
+		foodValue = 10;
 		creatureCost = 10;
 	}
 

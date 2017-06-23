@@ -9,14 +9,17 @@ public class Creature : MonoBehaviour {
 
 	private CreatureHealth creatureHealth;
 	private CreatureMovement creatureMovement;
-	public CreatureGather creatureGather;
+	private CreatureGather creatureGather;
 	private CreatureCombat creatureCombat;
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		creatureHealth = gameObject.GetComponent<CreatureHealth> ();
 		creatureMovement = gameObject.GetComponent<CreatureMovement> ();
 		creatureGather = gameObject.GetComponent<CreatureGather> ();
 		creatureCombat = gameObject.GetComponent<CreatureCombat> ();
+	}
+
+	void Start () {
 		gameObject.GetComponent<SpriteRenderer> ().color = creatureColor;
 	}
 

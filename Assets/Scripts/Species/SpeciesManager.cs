@@ -4,13 +4,10 @@ using UnityEngine;
 
 public class SpeciesManager : MonoBehaviour {
 
-	public string speciesName = "Temp";
-	public int speciesNumber = 0;
-	public Color speciesColor;
-	public CreatureBase creatureBase;
-
-	private int population;
-	private int populationLimit;
+	public Species species;
+	public int startingPopulationLimit = 100;
+	public TileManager map;
+	private List<Species> speciesList = new List<Species>();
 	private Dictionary<int, float[]> speciesColors = new Dictionary<int, float[]> 
 	{
 		{ 0, new float[3] { 0, 0, 1 } },
@@ -23,27 +20,30 @@ public class SpeciesManager : MonoBehaviour {
 		{ 7, new float[3] { 0.6f, 0, 1 } },
 		{ 8, new float[3] { 0.1f, 0.2f, 0 } },
 	};
-
 	// Use this for initialization
 	void Start () {
-		initializeValues ();
-		spawnCreatureBase (transform.position);
+	}
+		
+	public void createAllSpecies (Vector2[] startingPoints) {
+		for (int i = 0; i < startingPoints.Length; i++) {
+			createSpecies (i, startingPoints [i]);
+		}
 	}
 
 	private Color getSpeciesColor (int number) {
 		return new Color(speciesColors[number][0], speciesColors[number][1], speciesColors[number][2], 1);
 	}
 
-	private void initializeValues () {
-		populationLimit = 100;
-		population = 0;
-		speciesName = "Temporary";
-		speciesColor = getSpeciesColor (speciesNumber);
+	private void createSpecies (int number, Vector2 startingPoint) {
+		Species newSpecies = (Species) Instantiate(species, startingPoint, transform.rotation);
+		newSpecies.speciesNumber = number;
+		newSpecies.speciesColor = getSpeciesColor(number);
+		newSpecies.populationLimit = startingPopulationLimit;
+		newSpecies.startingPoint = startingPoint;
+		newSpecies.transform.parent = this.transform;
+		newSpecies.map = map;
+		speciesList.Add (newSpecies);
 	}
 
-	public void spawnCreatureBase (Vector2 spawnPosition) {
-		CreatureBase newCreatureBase = (CreatureBase) Instantiate(creatureBase, spawnPosition, transform.rotation);
-		newCreatureBase.speciesNumber = speciesNumber;
-		newCreatureBase.speciesColor = speciesColor;
-	}
+
 }

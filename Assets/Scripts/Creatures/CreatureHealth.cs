@@ -7,13 +7,11 @@ public class CreatureHealth : MonoBehaviour {
 	public int health;
 	public int age;
 	public int maxAge;
-	public int ageRate;
+	private int ageRate;
 
 	// Use this for initialization
 	void Awake () {
-		health = 100;
 		age = 0;
-		maxAge = 100;
 		ageRate = 10;
 		InvokeRepeating ("updateAge", ageRate, ageRate);
 	}

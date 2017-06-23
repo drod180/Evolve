@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class TileManager : MonoBehaviour {
 
-	public Vector2 mapSize = new Vector2 (40, 40);
+	public Vector2 mapSize;
 	public char[,] mapValues;
-
+	public Vector2[] startingPoints;
 	public GameObject tileEmpty;
 	public GameObject tileGrass;
 	public GameObject tileMountain;
 	public GameObject tileWater;
 	public SpeciesManager speciesManager;
+	public Grid pathingGrid = new Grid ();
 
 	private int[,] fillValues;
 	private class FillDetails
@@ -33,7 +34,9 @@ public class TileManager : MonoBehaviour {
 	private int debugCountTotal = 0;
 
 	public void Start () {
-		buildWorld ();
+		buildWorld (1);
+		buildPathingGrid ();
+		preCompilePathingGrid ();
 	}
 
 	public void AddTilesToWorld () {
@@ -42,32 +45,56 @@ public class TileManager : MonoBehaviour {
 				Vector2 spawnPosition = new Vector2 ((float)i, (float)j);
 				switch (mapValues [i, j]) {
 				case 'G':
-					Instantiate (tileGrass, spawnPosition, transform.rotation);
+					GameObject newGrass = (GameObject)Instantiate (tileGrass, spawnPosition, transform.rotation);
+					newGrass.transform.parent = this.transform;
 					break;
 				case 'M':
-					Instantiate (tileMountain, spawnPosition, transform.rotation);
+					GameObject newMountain = (GameObject)Instantiate (tileMountain, spawnPosition, transform.rotation);
+					newMountain.transform.parent = this.transform;
 					break;
 				case 'W':
-					Instantiate (tileWater, spawnPosition, transform.rotation);
+					GameObject newWater = (GameObject)Instantiate (tileWater, spawnPosition, transform.rotation);
+					newWater.transform.parent = this.transform;
 					break;
 				default:
-					Instantiate (tileEmpty, spawnPosition, transform.rotation);
+					GameObject newTile = (GameObject)Instantiate (tileEmpty, spawnPosition, transform.rotation);
+					newTile.transform.parent = this.transform;
 					break;
 				}
 
 			}
 		}
 
+//		pathingGrid.rowSize = (int)mapSize.x;
+//		int counter = 0;
+//		for (int i = 0; i < mapSize.x; i++) {
+//			for (int j = 0; j < mapSize.y; j++) {
+//
+//				Vector2 spawnPosition = new Vector2 ((float)i, (float)(j + mapSize.y + 10));
+//				if (!pathingGrid.gridNodes [counter].isObstacle) {
+//					GameObject newGrass = (GameObject)Instantiate (tileGrass, spawnPosition, transform.rotation);
+//					newGrass.transform.parent = this.transform;
+//				} else {
+//					GameObject newTile = (GameObject)Instantiate (tileEmpty, spawnPosition, transform.rotation);
+//					newTile.transform.parent = this.transform;
+//				}
+//				counter++;
+//			}
+//		}
 	}
 		
-	public void buildWorld () {
+	public void buildWorld (int speciesCount) {
 		SetTiles ();
 		populateFillList ();
+		//buildPathingGrid ();
 		AddTilesToWorld ();
 		bool addedStarting = false;
 		while (!addedStarting) {
-			addedStarting = addStartingPoints (9);
+			addedStarting = addStartingPoints (speciesCount);
 		}
+		SpeciesManager newSpeciesManager = (SpeciesManager)Instantiate (speciesManager, Vector2.zero, transform.rotation);
+		newSpeciesManager.map = this;
+		newSpeciesManager.createAllSpecies (startingPoints);
 		//printFillArray ();
 	}
 
@@ -89,23 +116,26 @@ public class TileManager : MonoBehaviour {
 	}
 
 	private void addMountainlands() {
-		int mountainCount = Random.Range (2, 5);
+		int mountainCount = Random.Range (4, 8);
 		for (int i = 0; i < mountainCount; i++) {
-			buildTerrain (Random.Range (2, 4), 'M');
+			buildTerrain (Random.Range (3, 5), 'M');
 		}
 	}
 
 
 	private void addWaterlands() {
-		int riverCount = Random.Range (2, 6);
+		int riverCount = Random.Range (4, 8);
 		for (int i = 0; i < riverCount; i++) {
-			buildTerrain (Random.Range (2, 4), 'W');
+			buildTerrain (Random.Range (3, 5), 'W');
 		}
 	}
-	
+
 	private void buildTerrain (int size, char terrain) {
 		int maxSize = size * 2;
-		int minSize = (int)Mathf.Ceil(size / 2);
+		int minSize = (int)Mathf.Ceil(size / 2.0f);
+		if (minSize == 1) {
+			Debug.Log(Mathf.Ceil(1.5f));
+		}
 		int currentSize = size;
 		int length = size * Random.Range (5, 20);
 		int currentDirVal = Random.Range (0, 8);
@@ -301,13 +331,12 @@ public class TileManager : MonoBehaviour {
 		
 	private bool placeStartPoint (int minX, int maxX, int minY, int maxY, int speciesNumber, int attempts) {
 		bool placed = false;
+
 		for (int i = 0; i < attempts && !placed; i++) {
 			int[] startingPoint = new int[2] { Random.Range (minX, maxX), Random.Range (minY, maxY) };
 			if (mapValues[startingPoint[0], startingPoint[1]] == 'G' && fillList[fillValues[startingPoint[0], startingPoint[1]]].bigEnough) {
 				placed = true;
-				Vector2 spawnPosition = new Vector2 (startingPoint [0], startingPoint [1]);
-				SpeciesManager newSpecies = (SpeciesManager) Instantiate(speciesManager, spawnPosition, transform.rotation);
-				newSpecies.speciesNumber = speciesNumber;
+				startingPoints [speciesNumber] = new Vector2(startingPoint[0], startingPoint[1]);
 			}
 		}
 
@@ -330,6 +359,7 @@ public class TileManager : MonoBehaviour {
 			new float[4] { mid[0], mid[1], end[0],end[1]},
 			new float[4] { mid[0], mid[1], start[0],start[1]}
 		};
+		startingPoints = new Vector2[teamCount];
 		int team = 0;
 		bool placed;
 		for(int i = 0; i < sections.Length && teamCount > team; i++) {
@@ -341,7 +371,37 @@ public class TileManager : MonoBehaviour {
 		}
 		return teamCount == team;
 	}
-		
+
+	public void buildPathingGrid () {
+		int gridSize = (int)mapSize.x * (int)mapSize.y;
+
+		pathingGrid.gridNodes = new Node[gridSize];
+		pathingGrid.pathfindingNodes = new PathfindingNode[gridSize];
+		pathingGrid.rowSize = (int)this.mapSize.x;
+		int nodeNum = 0;
+		for (int i = 0; i < (int)mapSize.x; i++) {
+			for (int j = 0; j < (int)mapSize.y; j++) {
+				int column = i;
+				int row = j;
+				pathingGrid.gridNodes [nodeNum] = new Node ();
+				pathingGrid.gridNodes [nodeNum].pos = new Point (row, column);
+				if (mapValues [column, row] != 'G') {
+					pathingGrid.gridNodes [nodeNum].isObstacle = true;
+				}
+			
+				pathingGrid.pathfindingNodes [nodeNum] = new PathfindingNode();
+				pathingGrid.pathfindingNodes [nodeNum].pos = new Point( row, column );
+
+				nodeNum++;
+			}
+		}
+	}
+
+	public void preCompilePathingGrid () {
+		pathingGrid.buildPrimaryJumpPoints ();
+		pathingGrid.buildStraightJumpPoints ();
+		pathingGrid.buildDiagonalJumpPoints ();
+	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Debugging~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	private void printMapArray () {
 		string tempLog = "";
@@ -387,7 +447,7 @@ public class TileManager : MonoBehaviour {
 		}
 
 	}
-
+		
 	private void printStats () {
 		Debug.Log ("Pass: <color=green>" + debugCountPass + "</color>");
 		Debug.Log ("Fail: <color=red>" + (debugCountTotal - debugCountPass) + "</color>");

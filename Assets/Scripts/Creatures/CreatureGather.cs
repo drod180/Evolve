@@ -17,9 +17,6 @@ public class CreatureGather : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
 		currentFood = 0;
-		foodCapacity = 5;
-		foodCollectRate = 3;
-		foodCollectAmount = 1;
 		creatureMovement = gameObject.GetComponent<CreatureMovement> ();
 	}
 

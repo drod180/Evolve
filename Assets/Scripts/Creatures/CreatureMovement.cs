@@ -15,20 +15,24 @@ public class CreatureMovement : MonoBehaviour {
 	}
 	public float moveInterval;
 	public float moveSpeed;
+	public float moveRange;
 
+	public TileManager map;
 
 	public Stack<CreatureTarget> targetList;
+
+	private List<Point> pointList;
 	private Vector2 desiredPosition;
+
+	private CreatureTarget finalTarget;
+	private Vector2 nextTarget;
+
 	CreatureGather creatureGather;
+
 	// Use this for initialization
 	void Awake () {
-		moveInterval = 2;
-		moveSpeed = 5;
 		targetList = new Stack<CreatureTarget> ();
-		Vector2 currentPosition = transform.position;
-		desiredPosition.x = Random.Range (currentPosition.x - 5.0f, currentPosition.x + 5.0f);
-		desiredPosition.y = Random.Range (currentPosition.y - 5.0f, currentPosition.y + 5.0f);
-		addMoveLocation (desiredPosition);
+		pointList = new List<Point> ();
 		creatureGather = gameObject.GetComponent<CreatureGather> ();
 	}
 	
@@ -55,7 +59,7 @@ public class CreatureMovement : MonoBehaviour {
 	 * Returns true if location was removed, false if not
 	 */
 	public bool removeMoveLocation (int prior) {
-		if (prior == targetList.Peek ().priority) {
+		if (targetList.Count > 0 && prior == targetList.Peek ().priority) {
 			targetList.Pop ();
 			return true;
 		}
@@ -76,37 +80,95 @@ public class CreatureMovement : MonoBehaviour {
 
 	// Move to next position
 	private void move () {
-		Vector2 movePos = targetList.Peek ().position;
-		int movePriority = targetList.Peek ().priority;
-		transform.position = Vector2.MoveTowards (transform.position, movePos, moveSpeed * Time.deltaTime);
-		faceObject ((Vector3)movePos);
 
-		if (movePriority == 0 && arrivedAtLocation ()) {
-			removeMoveLocation (0);
-			getNewPosition ();
-		} else if (movePriority == 1 && arrivedAtLocation () && creatureGather.foodGatheringSource == null) {
-			removeMoveLocation (1);
+		//Get/Check the final target
+		if (targetList.Count == 0 || finalTarget.position != targetList.Peek ().position) { 
+			if (targetList.Count == 0) {
+				getNewRandomPosition ();
+			}
+
+			finalTarget = targetList.Peek ();
+			pointList = getPathToTarget (transform.position, finalTarget.position);
+			Debug.Log ("````````");
+			Debug.Log("Start: <color=green>" + transform.position + "</color>");
+			Debug.Log("Target: <color=red>" + finalTarget.position + "</color>");
+
+			for (int i = 0; i < pointList.Count; i++) {
+				Debug.Log (pointList[i]);
+			}
+			Debug.Log ("````````");
 		}
+
+		//Get/Check next target
+		if (pointList.Count > 0) {
+			Vector2 nextPoint = new Vector2 (pointList [0].column, pointList [0].row);
+			if (nextTarget != nextPoint) {
+				Debug.Log ("~~~~~~~~~~~~~");
+				Debug.Log (nextTarget);
+				Debug.Log (nextPoint);
+				nextTarget = nextPoint;
+			}
+		} else {
+			nextTarget = finalTarget.position;
+		}
+
+
+		//Move towards target
+		transform.position = Vector2.MoveTowards (transform.position, nextTarget, moveSpeed * Time.deltaTime);
+		faceObject ((Vector3)nextTarget);
+
+		//check if at target
+		if (pointList.Count > 0 && arrivedAtLocation (nextTarget)) {
+			Debug.Log ("Arrived at Next Target!");
+			pointList.RemoveAt (0);
+		}
+
+		if (arrivedAtLocation (finalTarget.position)) {
+			Debug.Log ("Arrived at final Location!");
+			removeMoveLocation (finalTarget.priority);
+		}
+			
 	}
 
-	private void getNewPosition () {
+	private void getNewRandomPosition () {
+		Vector2 currentPosition = transform.position;
+		Vector2 newPosition = new Vector2 (-1, -1);
 
-		if (targetList.Count == 0) {
-			Vector2 currentPosition = transform.position;
-			Vector2 newPosition;
-			newPosition.x = Random.Range (currentPosition.x - 5.0f, currentPosition.x + 5.0f);
-			newPosition.y = Random.Range (currentPosition.y - 5.0f, currentPosition.y + 5.0f);
+		while (!validPosition(newPosition)) {
+			newPosition.x = Mathf.Round(Random.Range (currentPosition.x - moveRange, currentPosition.x + moveRange));
+			newPosition.y = Mathf.Round(Random.Range (currentPosition.y - moveRange, currentPosition.y + moveRange));
+		}
+		addMoveLocation (newPosition);
+	}
+		
 
-			addMoveLocation (newPosition);
-		} 
+	private List<Point> getPathToTarget (Vector2 startingPoint, Vector2 destination) {
+		Point start = new Point ((int)startingPoint.y, (int)startingPoint.x);
+		Point end = new Point ((int)destination.y, (int)destination.x);
+
+		return map.pathingGrid.getPath (start, end);
 	}
 
-	private bool arrivedAtLocation () {
-		return targetList.Peek ().position == new Vector2 (transform.position.x, transform.position.y);
+	//Determines if current location is target location or not
+	private bool arrivedAtLocation (Vector2 targetLocation) {
+		return targetLocation == new Vector2 (transform.position.x, transform.position.y);
 	}
 
 	private void faceObject (Vector3 target) {
 		Vector3 vectorToTarget = target - transform.position;
 		transform.LookAt(transform.position + new Vector3(0,0,1), vectorToTarget);
 	}
+
+	private bool validPosition(Vector2 position) {
+		if (position.x < 0 || 
+			position.x > map.mapSize.x || 
+			position.y < 0 || 
+			position.y > map.mapSize.y || 
+			map.mapValues[(int)position.x, (int)position.y] != 'G') {
+
+			return false;
+		}
+		return true;
+	}
+		
 }
