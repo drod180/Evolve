@@ -1,8 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EpPathFinding.cs;
 
 public class CreatureMovement : MonoBehaviour {
+
+	public GameObject debugTile1;
+	public GameObject debugTile2;
+	public GameObject debugTile3;
+
 	public class CreatureTarget
 	{
 		public Vector2 position;
@@ -21,7 +27,7 @@ public class CreatureMovement : MonoBehaviour {
 
 	public Stack<CreatureTarget> targetList;
 
-	private List<Point> pointList;
+	private List<GridPos> pointList;
 	private Vector2 desiredPosition;
 
 	private CreatureTarget finalTarget;
@@ -32,10 +38,13 @@ public class CreatureMovement : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
 		targetList = new Stack<CreatureTarget> ();
-		pointList = new List<Point> ();
+		pointList = new List<GridPos> ();
 		creatureGather = gameObject.GetComponent<CreatureGather> ();
 	}
-	
+
+	void Start () {
+		//getPathToTargetTest ();
+	}
 	// Update is called once per frame
 	public void moveUpdate () {
 		move ();
@@ -58,8 +67,8 @@ public class CreatureMovement : MonoBehaviour {
 	 * Priorities: 0 - Wander, 1 - Food, 2 - Home Base
 	 * Returns true if location was removed, false if not
 	 */
-	public bool removeMoveLocation (int prior) {
-		if (targetList.Count > 0 && prior == targetList.Peek ().priority) {
+	public bool removeMoveLocation (int prior, bool forceRemoval = false) {
+		if (targetList.Count > 0 && (prior == targetList.Peek ().priority || forceRemoval)) {
 			targetList.Pop ();
 			return true;
 		}
@@ -72,46 +81,34 @@ public class CreatureMovement : MonoBehaviour {
 	 * Returns true if location was updated, false if not
 	 */
 	public bool updateMoveLocation (Vector2 location, int prior) {
-		if (removeMoveLocation (prior)) {
-			return addMoveLocation (location, prior);
-		}
-		return false;
+		removeMoveLocation (prior);
+		return addMoveLocation (location, prior);
 	}
 
 	// Move to next position
 	private void move () {
 
 		//Get/Check the final target
-		if (targetList.Count == 0 || finalTarget.position != targetList.Peek ().position) { 
+		if (targetList.Count == 0 || (finalTarget != null && finalTarget.position != targetList.Peek ().position)) { 
 			if (targetList.Count == 0) {
 				getNewRandomPosition ();
 			}
 
 			finalTarget = targetList.Peek ();
 			pointList = getPathToTarget (transform.position, finalTarget.position);
-			Debug.Log ("````````");
-			Debug.Log("Start: <color=green>" + transform.position + "</color>");
-			Debug.Log("Target: <color=red>" + finalTarget.position + "</color>");
 
-			for (int i = 0; i < pointList.Count; i++) {
-				Debug.Log (pointList[i]);
+			if (pointList.Count == 0) {
+				removeMoveLocation (1, true);
 			}
-			Debug.Log ("````````");
 		}
 
 		//Get/Check next target
 		if (pointList.Count > 0) {
-			Vector2 nextPoint = new Vector2 (pointList [0].column, pointList [0].row);
+			Vector2 nextPoint = new Vector2 (pointList [0].x, pointList [0].y);
 			if (nextTarget != nextPoint) {
-				Debug.Log ("~~~~~~~~~~~~~");
-				Debug.Log (nextTarget);
-				Debug.Log (nextPoint);
 				nextTarget = nextPoint;
 			}
-		} else {
-			nextTarget = finalTarget.position;
 		}
-
 
 		//Move towards target
 		transform.position = Vector2.MoveTowards (transform.position, nextTarget, moveSpeed * Time.deltaTime);
@@ -119,12 +116,10 @@ public class CreatureMovement : MonoBehaviour {
 
 		//check if at target
 		if (pointList.Count > 0 && arrivedAtLocation (nextTarget)) {
-			Debug.Log ("Arrived at Next Target!");
 			pointList.RemoveAt (0);
 		}
 
 		if (arrivedAtLocation (finalTarget.position)) {
-			Debug.Log ("Arrived at final Location!");
 			removeMoveLocation (finalTarget.priority);
 		}
 			
@@ -142,11 +137,12 @@ public class CreatureMovement : MonoBehaviour {
 	}
 		
 
-	private List<Point> getPathToTarget (Vector2 startingPoint, Vector2 destination) {
-		Point start = new Point ((int)startingPoint.y, (int)startingPoint.x);
-		Point end = new Point ((int)destination.y, (int)destination.x);
+	private List<GridPos> getPathToTarget (Vector2 startingPoint, Vector2 destination) {
+		GridPos start = new GridPos ((int)startingPoint.x, (int)startingPoint.y);
+		GridPos end = new GridPos ((int)destination.x, (int)destination.y);
+		map.jpParam.Reset (start, end);
 
-		return map.pathingGrid.getPath (start, end);
+		return JumpPointFinder.FindPath (map.jpParam);
 	}
 
 	//Determines if current location is target location or not
@@ -160,10 +156,10 @@ public class CreatureMovement : MonoBehaviour {
 	}
 
 	private bool validPosition(Vector2 position) {
-		if (position.x < 0 || 
-			position.x > map.mapSize.x || 
-			position.y < 0 || 
-			position.y > map.mapSize.y || 
+		if ((int)position.x < 0 || 
+			(int)position.x > (int)map.mapSize.x - 1|| 
+			(int)position.y < 0 || 
+			(int)position.y > (int)map.mapSize.y - 1|| 
 			map.mapValues[(int)position.x, (int)position.y] != 'G') {
 
 			return false;
@@ -171,4 +167,42 @@ public class CreatureMovement : MonoBehaviour {
 		return true;
 	}
 		
+
+
+	//Tests
+	private void getPathToTargetTest() {
+		List<GridPos> testList = getPathToTarget (new Vector2(0,0), new Vector2(map.mapSize.x - 1, map.mapSize.y - 1));
+
+		Debug.Log ("<color=red>Path to target (0, 0) to (" + (map.mapSize.x - 1)+ ", " + (map.mapSize.y - 1)+ ")</color>");
+		for (int i = 0; i < testList.Count; i++) {
+			Debug.Log (testList[i]);
+			Vector2 spawnPosition = new Vector2 (testList [i].x, testList [i].y);
+			GameObject newTile = (GameObject)Instantiate (debugTile1, spawnPosition, transform.rotation);
+			newTile.transform.parent = this.transform;
+		}
+		Debug.Log ("<color=red>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>");
+
+		testList = getPathToTarget (new Vector2(0,0), new Vector2(0, (map.mapSize.y - 1)));
+
+		Debug.Log ("<color=green>Path to target (0, 0) to 0, " + (map.mapSize.y - 1)+ "</color>");
+		for (int i = 0; i < testList.Count; i++) {
+			Debug.Log (testList[i]);
+			Vector2 spawnPosition = new Vector2 (testList [i].x, testList [i].y);
+			GameObject newTile = (GameObject)Instantiate (debugTile2, spawnPosition, transform.rotation);
+			newTile.transform.parent = this.transform;
+		}
+		Debug.Log ("<color=green>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>");
+
+		testList = getPathToTarget (new Vector2(0,0), new Vector2((map.mapSize.x - 1), 0));
+
+		Debug.Log ("<color=blue>Path to target 0, 0 to (" + (map.mapSize.x - 1)+ ", 0)</color>");
+		for (int i = 0; i < testList.Count; i++) {
+			Debug.Log (testList[i]);
+			Vector2 spawnPosition = new Vector2 (testList [i].x, testList [i].y);
+			GameObject newTile = (GameObject)Instantiate (debugTile3, spawnPosition, transform.rotation);
+			newTile.transform.parent = this.transform;
+		}
+		Debug.Log ("<color=blue>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>");
+
+	}
 }
