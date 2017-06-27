@@ -21,6 +21,7 @@ public class Creature : MonoBehaviour {
 
 	void Start () {
 		gameObject.GetComponent<SpriteRenderer> ().color = creatureColor;
+//		creatureMovement.moveUpdate ();
 	}
 
 	// Update is called once per frame

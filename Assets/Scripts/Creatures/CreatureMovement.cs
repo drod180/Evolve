@@ -30,7 +30,7 @@ public class CreatureMovement : MonoBehaviour {
 	private List<GridPos> pointList;
 	private Vector2 desiredPosition;
 
-	private CreatureTarget finalTarget;
+	private Vector2 finalTarget;
 	private Vector2 nextTarget;
 
 	CreatureGather creatureGather;
@@ -45,10 +45,19 @@ public class CreatureMovement : MonoBehaviour {
 	void Start () {
 		//getPathToTargetTest ();
 	}
+
 	// Update is called once per frame
 	public void moveUpdate () {
 		move ();
 	}
+
+//	public IEnumerator moveUpdate () {
+//
+//		while (true) {
+//			yield return new WaitForSeconds (1);
+//			move ();
+//		}
+//	}
 
 	/*
 	 * Priorities: 0 - Wander, 1 - Food, 2 - Home Base
@@ -87,15 +96,21 @@ public class CreatureMovement : MonoBehaviour {
 
 	// Move to next position
 	private void move () {
-
+		//CONSIDER MODIFYING FINAL TARGET TO NOT BE AN OBJECT. NEED TO SIMPLIFY THIS FUNCTION AS IT GETS CALLED OFTEN
+		//NEED TO FIX BACKGROUND TO BE STATIC IMAGE AS OPPOSED TO INDIVIDUAL TILES.
+		int targetPriority = 0;
 		//Get/Check the final target
-		if (targetList.Count == 0 || (finalTarget != null && finalTarget.position != targetList.Peek ().position)) { 
+		if (targetList.Count == 0 || finalTarget != targetList.Peek ().position) { 
 			if (targetList.Count == 0) {
 				getNewRandomPosition ();
 			}
 
-			finalTarget = targetList.Peek ();
-			pointList = getPathToTarget (transform.position, finalTarget.position);
+			if (targetList.Peek () != null) {
+				finalTarget = targetList.Peek ().position;
+				targetPriority = targetList.Peek ().priority;
+				pointList.Clear ();
+				pointList = getPathToTarget (transform.position, finalTarget);
+			}
 
 			if (pointList.Count == 0) {
 				removeMoveLocation (1, true);
@@ -119,8 +134,9 @@ public class CreatureMovement : MonoBehaviour {
 			pointList.RemoveAt (0);
 		}
 
-		if (arrivedAtLocation (finalTarget.position)) {
-			removeMoveLocation (finalTarget.priority);
+		//Remove location if we arrive
+		if (arrivedAtLocation (finalTarget)) {
+			removeMoveLocation (targetPriority);
 		}
 			
 	}

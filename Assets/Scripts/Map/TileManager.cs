@@ -4,14 +4,14 @@ using UnityEngine;
 using EpPathFinding.cs;
 
 public class TileManager : MonoBehaviour {
+	public Sprite grassSprite;
+	public Sprite mountSprite;
+	public Sprite waterSprite;
+	public Sprite defaultSprite;
 
 	public Vector2 mapSize;
 	public char[,] mapValues;
 	public Vector2[] startingPoints;
-	public GameObject tileEmpty;
-	public GameObject tileGrass;
-	public GameObject tileMountain;
-	public GameObject tileWater;
 	public SpeciesManager speciesManager;
 	public JumpPointParam jpParam;
 
@@ -52,30 +52,51 @@ public class TileManager : MonoBehaviour {
 	}
 
 	private void AddTilesToWorld () {
+		Texture2D fullMap = new Texture2D ((int)mapSize.x, (int)mapSize.y);
+
+		Color[] grassPixels = grassSprite.texture.GetPixels((int)grassSprite.textureRect.x, 
+													(int)grassSprite.textureRect.y, 
+													(int)grassSprite.textureRect.width, 
+													(int)grassSprite.textureRect.height);
+
+		Color[] mountPixels = mountSprite.texture.GetPixels((int)mountSprite.textureRect.x, 
+															(int)mountSprite.textureRect.y, 
+															(int)mountSprite.textureRect.width, 
+															(int)mountSprite.textureRect.height);
+
+		Color[] waterPixels = waterSprite.texture.GetPixels((int)waterSprite.textureRect.x, 
+															(int)waterSprite.textureRect.y, 
+															(int)waterSprite.textureRect.width, 
+															(int)waterSprite.textureRect.height);
+
+		Color[] defaultPixels = defaultSprite.texture.GetPixels((int)defaultSprite.textureRect.x, 
+																(int)defaultSprite.textureRect.y, 
+																(int)defaultSprite.textureRect.width, 
+																(int)defaultSprite.textureRect.height);
+
+		
 		for (int i = 0; i < mapSize.x; i++) {
 			for (int j = 0; j < mapSize.y; j++) {
-				Vector2 spawnPosition = new Vector2 ((float)i, (float)j);
 				switch (mapValues [i, j]) {
 				case 'G':
-					//GameObject newGrass = (GameObject)Instantiate (tileGrass, spawnPosition, transform.rotation);
-					//newGrass.transform.parent = this.transform;
+					fullMap.SetPixels (i, j, 1, 1, grassPixels);
 					break;
 				case 'M':
-					//GameObject newMountain = (GameObject)Instantiate (tileMountain, spawnPosition, transform.rotation);
-					//newMountain.transform.parent = this.transform;
+					fullMap.SetPixels (i, j, 1, 1, mountPixels);
 					break;
 				case 'W':
-					//GameObject newWater = (GameObject)Instantiate (tileWater, spawnPosition, transform.rotation);
-					//newWater.transform.parent = this.transform;
+					fullMap.SetPixels (i, j, 1, 1, waterPixels);
 					break;
 				default:
-					GameObject newTile = (GameObject)Instantiate (tileEmpty, spawnPosition, transform.rotation);
-					newTile.transform.parent = this.transform;
+					fullMap.SetPixels (i, j, 1, 1, defaultPixels);
 					break;
 				}
-
 			}
 		}
+
+		fullMap.Apply ();
+		GetComponent<SpriteRenderer> ().sprite = Sprite.Create (fullMap, new Rect (0.0f, 0.0f, fullMap.width, fullMap.height), new Vector2 (0, 0), 1.0f);
+
 	}
 		
 	private void setTiles (WorldParams buildParams) {
@@ -367,7 +388,7 @@ public class TileManager : MonoBehaviour {
 
 		GridPos startPos=new GridPos(0,0); 
 		GridPos endPos = new GridPos(0,0); 
-		jpParam = new JumpPointParam(searchGrid, startPos, endPos, true, DiagonalMovement.OnlyWhenNoObstacles,HeuristicMode.EUCLIDEAN);
+		jpParam = new JumpPointParam(searchGrid, startPos, endPos, false, DiagonalMovement.OnlyWhenNoObstacles,HeuristicMode.EUCLIDEAN);
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Debugging~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

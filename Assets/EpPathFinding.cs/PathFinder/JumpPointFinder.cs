@@ -39,7 +39,7 @@ using C5;
 using System;
 using System.Collections.Generic;
 using System.Collections;
-
+using UnityEngine;
 
 namespace EpPathFinding.cs
 {
@@ -179,7 +179,6 @@ namespace EpPathFinding.cs
         }
         public static List<GridPos> FindPath(JumpPointParam iParam)
         {
-
             IntervalHeap<Node> tOpenList = iParam.openList;
             Node tStartNode = iParam.StartNode;
             Node tEndNode = iParam.EndNode;
@@ -199,10 +198,16 @@ namespace EpPathFinding.cs
                 iParam.SearchGrid.SetWalkableAt(tEndNode.x, tEndNode.y, true);
                 revertEndNodeWalkable = true;
             }
-
+				
+			float timeout = 0.5f;
             // while the open list is not empty
             while (tOpenList.Count > 0)
             {
+				timeout -= Time.deltaTime;
+				if (timeout <= 0) {
+					return new List<GridPos> ();
+					Debug.Log("Timed out");
+				}
                 // pop the position of node which has the minimum `f` value.
                 tNode = tOpenList.DeleteMin();
                 tNode.isClosed = true;
