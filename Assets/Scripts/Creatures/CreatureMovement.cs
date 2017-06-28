@@ -5,10 +5,6 @@ using EpPathFinding.cs;
 
 public class CreatureMovement : MonoBehaviour {
 
-	public GameObject debugTile1;
-	public GameObject debugTile2;
-	public GameObject debugTile3;
-
 	public class CreatureTarget
 	{
 		public Vector2 position;
@@ -43,21 +39,13 @@ public class CreatureMovement : MonoBehaviour {
 	}
 
 	void Start () {
-		//getPathToTargetTest ();
+		getNewRandomPosition ();
 	}
 
 	// Update is called once per frame
 	public void moveUpdate () {
 		move ();
 	}
-
-//	public IEnumerator moveUpdate () {
-//
-//		while (true) {
-//			yield return new WaitForSeconds (1);
-//			move ();
-//		}
-//	}
 
 	/*
 	 * Priorities: 0 - Wander, 1 - Food, 2 - Home Base
@@ -187,38 +175,38 @@ public class CreatureMovement : MonoBehaviour {
 
 	//Tests
 	private void getPathToTargetTest() {
-		List<GridPos> testList = getPathToTarget (new Vector2(0,0), new Vector2(map.mapSize.x - 1, map.mapSize.y - 1));
-
-		Debug.Log ("<color=red>Path to target (0, 0) to (" + (map.mapSize.x - 1)+ ", " + (map.mapSize.y - 1)+ ")</color>");
-		for (int i = 0; i < testList.Count; i++) {
-			Debug.Log (testList[i]);
-			Vector2 spawnPosition = new Vector2 (testList [i].x, testList [i].y);
-			GameObject newTile = (GameObject)Instantiate (debugTile1, spawnPosition, transform.rotation);
-			newTile.transform.parent = this.transform;
-		}
-		Debug.Log ("<color=red>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>");
-
-		testList = getPathToTarget (new Vector2(0,0), new Vector2(0, (map.mapSize.y - 1)));
-
-		Debug.Log ("<color=green>Path to target (0, 0) to 0, " + (map.mapSize.y - 1)+ "</color>");
-		for (int i = 0; i < testList.Count; i++) {
-			Debug.Log (testList[i]);
-			Vector2 spawnPosition = new Vector2 (testList [i].x, testList [i].y);
-			GameObject newTile = (GameObject)Instantiate (debugTile2, spawnPosition, transform.rotation);
-			newTile.transform.parent = this.transform;
-		}
-		Debug.Log ("<color=green>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>");
-
-		testList = getPathToTarget (new Vector2(0,0), new Vector2((map.mapSize.x - 1), 0));
-
-		Debug.Log ("<color=blue>Path to target 0, 0 to (" + (map.mapSize.x - 1)+ ", 0)</color>");
-		for (int i = 0; i < testList.Count; i++) {
-			Debug.Log (testList[i]);
-			Vector2 spawnPosition = new Vector2 (testList [i].x, testList [i].y);
-			GameObject newTile = (GameObject)Instantiate (debugTile3, spawnPosition, transform.rotation);
-			newTile.transform.parent = this.transform;
-		}
-		Debug.Log ("<color=blue>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>");
+//		List<GridPos> testList = getPathToTarget (new Vector2(0,0), new Vector2(map.mapSize.x - 1, map.mapSize.y - 1));
+//
+//		Debug.Log ("<color=red>Path to target (0, 0) to (" + (map.mapSize.x - 1)+ ", " + (map.mapSize.y - 1)+ ")</color>");
+//		for (int i = 0; i < testList.Count; i++) {
+//			Debug.Log (testList[i]);
+//			Vector2 spawnPosition = new Vector2 (testList [i].x, testList [i].y);
+//			GameObject newTile = (GameObject)Instantiate (debugTile1, spawnPosition, transform.rotation);
+//			newTile.transform.parent = this.transform;
+//		}
+//		Debug.Log ("<color=red>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>");
+//
+//		testList = getPathToTarget (new Vector2(0,0), new Vector2(0, (map.mapSize.y - 1)));
+//
+//		Debug.Log ("<color=green>Path to target (0, 0) to 0, " + (map.mapSize.y - 1)+ "</color>");
+//		for (int i = 0; i < testList.Count; i++) {
+//			Debug.Log (testList[i]);
+//			Vector2 spawnPosition = new Vector2 (testList [i].x, testList [i].y);
+//			GameObject newTile = (GameObject)Instantiate (debugTile2, spawnPosition, transform.rotation);
+//			newTile.transform.parent = this.transform;
+//		}
+//		Debug.Log ("<color=green>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>");
+//
+//		testList = getPathToTarget (new Vector2(0,0), new Vector2((map.mapSize.x - 1), 0));
+//
+//		Debug.Log ("<color=blue>Path to target 0, 0 to (" + (map.mapSize.x - 1)+ ", 0)</color>");
+//		for (int i = 0; i < testList.Count; i++) {
+//			Debug.Log (testList[i]);
+//			Vector2 spawnPosition = new Vector2 (testList [i].x, testList [i].y);
+//			GameObject newTile = (GameObject)Instantiate (debugTile3, spawnPosition, transform.rotation);
+//			newTile.transform.parent = this.transform;
+//		}
+//		Debug.Log ("<color=blue>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>");
 
 	}
 }

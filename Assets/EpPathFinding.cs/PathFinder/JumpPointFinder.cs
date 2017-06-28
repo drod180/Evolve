@@ -199,14 +199,14 @@ namespace EpPathFinding.cs
                 revertEndNodeWalkable = true;
             }
 				
-			float timeout = 0.5f;
+			float timeout = 0.15f;
             // while the open list is not empty
             while (tOpenList.Count > 0)
             {
 				timeout -= Time.deltaTime;
 				if (timeout <= 0) {
-					return new List<GridPos> ();
 					Debug.Log("Timed out");
+					return new List<GridPos> ();
 				}
                 // pop the position of node which has the minimum `f` value.
                 tNode = tOpenList.DeleteMin();
