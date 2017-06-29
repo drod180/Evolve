@@ -205,7 +205,6 @@ namespace EpPathFinding.cs
             {
 				timeout -= Time.deltaTime;
 				if (timeout <= 0) {
-					Debug.Log("Timed out");
 					return new List<GridPos> ();
 				}
                 // pop the position of node which has the minimum `f` value.
