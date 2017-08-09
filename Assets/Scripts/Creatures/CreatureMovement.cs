@@ -29,7 +29,11 @@ public class CreatureMovement : MonoBehaviour {
 	private Vector2 finalTarget;
 	private Vector2 nextTarget;
 
-	CreatureGather creatureGather;
+	private JumpPointParam jpParam;
+
+	public HashSet<string> creatureTraits;
+
+	private CreatureGather creatureGather;
 
 	// Use this for initialization
 	void Awake () {
@@ -82,10 +86,28 @@ public class CreatureMovement : MonoBehaviour {
 		return addMoveLocation (location, prior);
 	}
 
+	public void updateMovementTraits () {
+		jpParam = map.jpParamWalk;
+
+		if (creatureTraits.Contains ("swim")) {
+			jpParam = map.jpParamSwim;
+		}
+
+		if (creatureTraits.Contains ("climb")) {
+			jpParam = map.jpParamClimb;
+		}
+
+		if (creatureTraits.Contains ("climb") && creatureTraits.Contains ("swim")) {
+			jpParam = map.jpParamFly;
+		}
+
+		if (creatureTraits.Contains ("fly")) {
+			jpParam = map.jpParamFly;
+		}
+	}
+
 	// Move to next position
 	private void move () {
-		//CONSIDER MODIFYING FINAL TARGET TO NOT BE AN OBJECT. NEED TO SIMPLIFY THIS FUNCTION AS IT GETS CALLED OFTEN
-		//NEED TO FIX BACKGROUND TO BE STATIC IMAGE AS OPPOSED TO INDIVIDUAL TILES.
 		int targetPriority = 0;
 		//Get/Check the final target
 		if (targetList.Count == 0 || finalTarget != targetList.Peek ().position) { 
@@ -144,10 +166,12 @@ public class CreatureMovement : MonoBehaviour {
 	private List<GridPos> getPathToTarget (Vector2 startingPoint, Vector2 destination) {
 		GridPos start = new GridPos ((int)startingPoint.x, (int)startingPoint.y);
 		GridPos end = new GridPos ((int)destination.x, (int)destination.y);
-		map.jpParam.Reset (start, end);
 
-		return JumpPointFinder.FindPath (map.jpParam);
+		jpParam.Reset (start, end);
+
+		return JumpPointFinder.FindPath (jpParam);
 	}
+		
 
 	//Determines if current location is target location or not
 	private bool arrivedAtLocation (Vector2 targetLocation) {

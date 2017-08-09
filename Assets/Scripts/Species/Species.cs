@@ -10,7 +10,7 @@ public class Species : MonoBehaviour {
 	public int populationLimit;
 	public Vector2 startingPoint;
 	public CreatureBase creatureBase;
-	public List<string> traits;
+	public HashSet<string> traits;
 	public TileManager map;
 	public Dictionary<string, int> attributes = new Dictionary<string, int> 
 	{

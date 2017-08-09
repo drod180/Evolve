@@ -13,7 +13,10 @@ public class TileManager : MonoBehaviour {
 	public char[,] mapValues;
 	public Vector2[] startingPoints;
 	public SpeciesManager speciesManager;
-	public JumpPointParam jpParam;
+	public JumpPointParam jpParamWalk;
+	public JumpPointParam jpParamClimb;
+	public JumpPointParam jpParamSwim;
+	public JumpPointParam jpParamFly;
 
 	private int[,] fillValues;
 	private class FillDetails
@@ -376,19 +379,36 @@ public class TileManager : MonoBehaviour {
 
 
 	private void buildPathingGrid () {
-		BaseGrid searchGrid = new StaticGrid ((int)mapSize.x, (int)mapSize.y);
+		BaseGrid walkGrid = new StaticGrid ((int)mapSize.x, (int)mapSize.y);
+		BaseGrid swimGrid = new StaticGrid ((int)mapSize.x, (int)mapSize.y);
+		BaseGrid climbGrid = new StaticGrid ((int)mapSize.x, (int)mapSize.y);
+		BaseGrid flyGrid = new StaticGrid ((int)mapSize.x, (int)mapSize.y);
 
 		for (int i = 0; i < mapSize.x; i++) {
 			for (int j = 0; j < mapSize.y; j++) {
 				if (mapValues [i, j] == 'G'){
-					searchGrid.SetWalkableAt(i, j, true);
+					walkGrid.SetWalkableAt(i, j, true);
+					swimGrid.SetWalkableAt(i, j, true);
+					climbGrid.SetWalkableAt(i, j, true);
+					flyGrid.SetWalkableAt(i, j, true);
+				}
+				if (mapValues [i, j] == 'W'){
+					swimGrid.SetWalkableAt(i, j, true);
+					flyGrid.SetWalkableAt(i, j, true);
+				}
+				if (mapValues [i, j] == 'M'){
+					climbGrid.SetWalkableAt(i, j, true);
+					flyGrid.SetWalkableAt(i, j, true);
 				}
 			}
 		}
 
 		GridPos startPos=new GridPos(0,0); 
 		GridPos endPos = new GridPos(0,0); 
-		jpParam = new JumpPointParam(searchGrid, startPos, endPos, false, DiagonalMovement.OnlyWhenNoObstacles,HeuristicMode.EUCLIDEAN);
+		jpParamWalk = new JumpPointParam(walkGrid, startPos, endPos, false, DiagonalMovement.OnlyWhenNoObstacles,HeuristicMode.EUCLIDEAN);
+		jpParamSwim = new JumpPointParam(swimGrid, startPos, endPos, false, DiagonalMovement.OnlyWhenNoObstacles,HeuristicMode.EUCLIDEAN);
+		jpParamClimb = new JumpPointParam(climbGrid, startPos, endPos, false, DiagonalMovement.OnlyWhenNoObstacles,HeuristicMode.EUCLIDEAN);
+		jpParamFly = new JumpPointParam(flyGrid, startPos, endPos, false, DiagonalMovement.OnlyWhenNoObstacles,HeuristicMode.EUCLIDEAN);
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Debugging~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

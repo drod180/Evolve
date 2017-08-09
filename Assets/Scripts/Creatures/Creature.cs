@@ -6,22 +6,20 @@ public class Creature : MonoBehaviour {
 
 	public int creatureTeam = 0;
 	public Color creatureColor = new Color (1, 1, 1, 1);
+	public Species species;
 
 	private CreatureHealth creatureHealth;
 	private CreatureMovement creatureMovement;
 	private CreatureGather creatureGather;
 	private CreatureCombat creatureCombat;
+
 	// Use this for initialization
 	void Awake () {
-		creatureHealth = gameObject.GetComponent<CreatureHealth> ();
-		creatureMovement = gameObject.GetComponent<CreatureMovement> ();
-		creatureGather = gameObject.GetComponent<CreatureGather> ();
-		creatureCombat = gameObject.GetComponent<CreatureCombat> ();
+		setupCreature ();
 	}
 
 	void Start () {
 		gameObject.GetComponent<SpriteRenderer> ().color = creatureColor;
-//		creatureMovement.moveUpdate ();
 	}
 
 	// Update is called once per frame
@@ -52,6 +50,23 @@ public class Creature : MonoBehaviour {
 				StartCoroutine (creatureCombat.attackingOpponent (creature));
 			}
 		}
+	}
+
+	public void updateTraits () {
+		creatureMovement.updateMovementTraits ();
+	}
+
+	private void setupCreature() {
+		creatureHealth = gameObject.GetComponent<CreatureHealth> ();
+		creatureMovement = gameObject.GetComponent<CreatureMovement> ();
+		creatureGather = gameObject.GetComponent<CreatureGather> ();
+		creatureCombat = gameObject.GetComponent<CreatureCombat> ();
+
+		creatureHealth.creatureTraits = species.traits;
+		creatureMovement.creatureTraits = species.traits;
+		creatureGather.creatureTraits = species.traits;
+		creatureCombat.creatureTraits = species.traits;
+
 	}
 		
 }
