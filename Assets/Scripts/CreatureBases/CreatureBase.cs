@@ -50,6 +50,7 @@ public class CreatureBase : MonoBehaviour {
 
 		newCreature.transform.parent = this.transform;
 
+		creature.species = species;
 		creature.creatureTeam = species.speciesNumber;
 		creature.creatureColor = species.speciesColor;
 

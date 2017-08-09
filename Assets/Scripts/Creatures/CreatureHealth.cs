@@ -7,6 +7,8 @@ public class CreatureHealth : MonoBehaviour {
 	public int health;
 	public int age;
 	public int maxAge;
+	public HashSet<string> creatureTraits;
+
 	private int ageRate;
 
 	// Use this for initialization

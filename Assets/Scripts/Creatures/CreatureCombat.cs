@@ -11,6 +11,7 @@ public class CreatureCombat : MonoBehaviour {
 	public int attackRange;
 	public bool fighting;
 	public Creature combatOpponent;
+	public HashSet<string> creatureTraits;
 
 	private CreatureMovement creatureMovement;
 	// Use this for initialization

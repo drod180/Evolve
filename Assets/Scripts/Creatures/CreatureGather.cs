@@ -11,6 +11,7 @@ public class CreatureGather : MonoBehaviour {
 	public int foodCollectAmount;
 	public Food foodGatheringSource;
 	public Vector2 baseLocation;
+	public HashSet<string> creatureTraits;
 
 	private CreatureMovement creatureMovement;
 
