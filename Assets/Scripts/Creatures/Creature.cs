@@ -56,6 +56,39 @@ public class Creature : MonoBehaviour {
 		creatureMovement.updateMovementTraits ();
 	}
 
+	public void updateAllValues () {
+		updateMovementValues ();
+		updateCombatValues ();
+		updateGatherValues ();
+		updateHealthValues ();
+	}
+
+	public void updateMovementValues () {
+		creatureMovement.moveInterval = species.attributes ["moveInterval"];
+		creatureMovement.moveSpeed = species.attributes ["moveSpeed"];
+		creatureMovement.moveRange = species.attributes ["moveRange"];
+	}
+
+	public void updateCombatValues () {
+		creatureCombat.attackSpeed = species.attributes["attackSpeed"];
+		creatureCombat.projectileSpeed = species.attributes["projectileSpeed"];
+		creatureCombat.damage = species.attributes["damage"];
+		creatureCombat.attackRange = species.attributes["attackRange"];
+	}
+
+	public void updateGatherValues () {
+		creatureGather.foodCapacity = species.attributes ["foodCapacity"];
+		creatureGather.foodCollectRate = species.attributes["foodCollectionRate"];
+		creatureGather.foodCollectAmount = species.attributes["foodCollectAmount"];
+	}
+
+	public void updateHealthValues () {
+		creatureHealth.health = species.attributes["health"];
+		creatureHealth.maxAge = species.attributes["maxAge"];
+		creatureHealth.armor = species.attributes["armor"];
+		creatureHealth.damageReturn = species.attributes["damageReturn"];
+	}
+		
 	private void setupCreature() {
 		creatureHealth = gameObject.GetComponent<CreatureHealth> ();
 		creatureMovement = gameObject.GetComponent<CreatureMovement> ();

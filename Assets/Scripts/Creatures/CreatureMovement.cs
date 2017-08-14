@@ -105,7 +105,7 @@ public class CreatureMovement : MonoBehaviour {
 			jpParam = map.jpParamFly;
 		}
 	}
-
+		
 	// Move to next position
 	private void move () {
 		int targetPriority = 0;

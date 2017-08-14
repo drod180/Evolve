@@ -7,6 +7,8 @@ public class CreatureHealth : MonoBehaviour {
 	public int health;
 	public int age;
 	public int maxAge;
+	public int armor;
+	public int damageReturn;
 	public HashSet<string> creatureTraits;
 
 	private int ageRate;
@@ -25,22 +27,22 @@ public class CreatureHealth : MonoBehaviour {
 
 	public void takeDamage (int damage) {
 		health -= damage;
-		destroyCreature ();
+		destroyCreatureCheck ();
 	}
 
 	private void checkStatus () {
 		if (health <= 0) {
-			destroyCreature ();
+			destroyCreatureCheck ();
 		}
 	}
 		
 
 	private void updateAge () {
 		age++;
-		destroyCreature ();
+		destroyCreatureCheck ();
 	}
 
-	private void destroyCreature () {
+	private void destroyCreatureCheck () {
 		if (age == maxAge || health <= 0) {
 			Destroy (gameObject);
 		}

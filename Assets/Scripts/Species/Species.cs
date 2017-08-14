@@ -23,7 +23,9 @@ public class Species : MonoBehaviour {
 		{"foodCollectAmount", 1},
 		{"health", 50},
 		{"maxAge", 50},
-		{"moveInterval", 3},
+		{"armor", 1},
+		{"damageReturn", 0},
+		{"moveInterval", 4},
 		{"moveSpeed", 4},
 		{"moveRange", 5}
 	};
@@ -42,9 +44,29 @@ public class Species : MonoBehaviour {
 		newCreatureBase.map = map;
 	}
 
+	//Update attribute by either a full value, a percentage of the previous value or complete replacement
+	public void updateAttribute (string attribute, float value, string type) {
+		if (attributes.ContainsKey (attribute)) {
+			switch (type) {
+			case "percent":
+				attributes [attribute] += Mathf.CeilToInt(attributes [attribute] * value);
+				break;
+			case "full":
+				attributes [attribute] += Mathf.CeilToInt(value);
+				break;
+			case "swap":
+				attributes [attribute] = Mathf.CeilToInt(value);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
 	private void initializeAttributes () {
 		population = 0;
 	}
+		
 }
 
 
