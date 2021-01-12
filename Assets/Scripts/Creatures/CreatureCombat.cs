@@ -13,6 +13,8 @@ public class CreatureCombat : MonoBehaviour {
 	public Creature combatOpponent;
 	public HashSet<string> creatureTraits;
 
+	public Species species;
+
 	private CreatureMovement creatureMovement;
 	// Use this for initialization
 	void Awake () {
@@ -32,6 +34,7 @@ public class CreatureCombat : MonoBehaviour {
 		if (opponent == null) {
 			fighting = false;
 			creatureMovement.removeMoveLocation (3);
+			species.addEvolvePoints(1);
 		} else {
 			creatureMovement.updateMoveLocation (opponent.transform.position, 3);
 			GameObject newProjectile = (GameObject) Instantiate(projectile, transform.position, transform.rotation);

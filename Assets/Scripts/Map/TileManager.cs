@@ -137,9 +137,6 @@ public class TileManager : MonoBehaviour {
 	private void buildTerrain (int size, char terrain) {
 		int maxSize = size * 2;
 		int minSize = (int)Mathf.Ceil(size / 2.0f);
-		if (minSize == 1) {
-			Debug.Log(Mathf.Ceil(1.5f));
-		}
 		int currentSize = size;
 		int length = size * Random.Range (5, 20);
 		int currentDirVal = Random.Range (0, 8);

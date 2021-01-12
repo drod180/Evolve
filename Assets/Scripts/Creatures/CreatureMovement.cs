@@ -22,7 +22,7 @@ public class CreatureMovement : MonoBehaviour {
 	public TileManager map;
 
 	public Stack<CreatureTarget> targetList;
-
+	public HashSet<string> creatureTraits;
 	private List<GridPos> pointList;
 	private Vector2 desiredPosition;
 
@@ -31,7 +31,6 @@ public class CreatureMovement : MonoBehaviour {
 
 	private JumpPointParam jpParam;
 
-	public HashSet<string> creatureTraits;
 
 	private CreatureGather creatureGather;
 
@@ -43,6 +42,7 @@ public class CreatureMovement : MonoBehaviour {
 	}
 
 	void Start () {
+		updateMovementTraits();
 		getNewRandomPosition ();
 	}
 
@@ -87,8 +87,8 @@ public class CreatureMovement : MonoBehaviour {
 	}
 
 	public void updateMovementTraits () {
-		jpParam = map.jpParamWalk;
 
+		jpParam = map.jpParamWalk;
 		if (creatureTraits.Contains ("swim")) {
 			jpParam = map.jpParamSwim;
 		}
@@ -109,15 +109,18 @@ public class CreatureMovement : MonoBehaviour {
 	// Move to next position
 	private void move () {
 		int targetPriority = 0;
+
 		//Get/Check the final target
+	
 		if (targetList.Count == 0 || finalTarget != targetList.Peek ().position) { 
 			if (targetList.Count == 0) {
 				getNewRandomPosition ();
 			}
 
 			if (targetList.Peek () != null) {
-				finalTarget = targetList.Peek ().position;
-				targetPriority = targetList.Peek ().priority;
+				CreatureTarget target = targetList.Peek();
+				finalTarget = target.position;
+				targetPriority = target.priority;
 				pointList.Clear ();
 				pointList = getPathToTarget (transform.position, finalTarget);
 			}
@@ -155,9 +158,11 @@ public class CreatureMovement : MonoBehaviour {
 		Vector2 currentPosition = transform.position;
 		Vector2 newPosition = new Vector2 (-1, -1);
 
-		while (!validPosition(newPosition)) {
+		int watchDog = 0;
+		while (!validPosition(newPosition) && watchDog < 100) {
 			newPosition.x = Mathf.Round(Random.Range (currentPosition.x - moveRange, currentPosition.x + moveRange));
 			newPosition.y = Mathf.Round(Random.Range (currentPosition.y - moveRange, currentPosition.y + moveRange));
+			watchDog++;
 		}
 		addMoveLocation (newPosition);
 	}
@@ -166,9 +171,7 @@ public class CreatureMovement : MonoBehaviour {
 	private List<GridPos> getPathToTarget (Vector2 startingPoint, Vector2 destination) {
 		GridPos start = new GridPos ((int)startingPoint.x, (int)startingPoint.y);
 		GridPos end = new GridPos ((int)destination.x, (int)destination.y);
-
 		jpParam.Reset (start, end);
-
 		return JumpPointFinder.FindPath (jpParam);
 	}
 		
@@ -197,7 +200,7 @@ public class CreatureMovement : MonoBehaviour {
 		
 
 
-	//Tests
+	/*Tests
 	private void getPathToTargetTest() {
 //		List<GridPos> testList = getPathToTarget (new Vector2(0,0), new Vector2(map.mapSize.x - 1, map.mapSize.y - 1));
 //
@@ -232,5 +235,5 @@ public class CreatureMovement : MonoBehaviour {
 //		}
 //		Debug.Log ("<color=blue>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>");
 
-	}
+	}*/
 }

@@ -15,10 +15,11 @@ public class Creature : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-		setupCreature ();
+		initializeCreature();
 	}
 
 	void Start () {
+		setupCreature ();
 		gameObject.GetComponent<SpriteRenderer> ().color = creatureColor;
 	}
 
@@ -89,16 +90,20 @@ public class Creature : MonoBehaviour {
 		creatureHealth.damageReturn = species.attributes["damageReturn"];
 	}
 		
-	private void setupCreature() {
+	private void initializeCreature() {
 		creatureHealth = gameObject.GetComponent<CreatureHealth> ();
 		creatureMovement = gameObject.GetComponent<CreatureMovement> ();
 		creatureGather = gameObject.GetComponent<CreatureGather> ();
 		creatureCombat = gameObject.GetComponent<CreatureCombat> ();
+	}
 
+	private void setupCreature() {
 		creatureHealth.creatureTraits = species.traits;
+		creatureHealth.species = species;
 		creatureMovement.creatureTraits = species.traits;
 		creatureGather.creatureTraits = species.traits;
 		creatureCombat.creatureTraits = species.traits;
+		creatureCombat.species = species;
 
 	}
 		

@@ -8,8 +8,9 @@ public class CreatureBase : MonoBehaviour {
 
 	public Vector2 homeCoords;
 	public float spawnRate;
-	public int population;
+	public int creaturesCreated;
 	public Creature creature;
+	public List<Creature> creatureList;
 	public TileManager map;
 
 	private BaseResources resourceManager;
@@ -31,13 +32,16 @@ public class CreatureBase : MonoBehaviour {
 
 		Creature newCreature = (Creature) Instantiate(creature, spawnPosition, transform.rotation);
 		initializeCreature (newCreature);
-		population++;
+		creatureList.Add(newCreature);
+		creaturesCreated++;
+		species.population++;
+		species.addEvolvePoints(1);
 	}
 
 	private void initializeAttributes() {
 		resourceManager = gameObject.GetComponent<BaseResources> ();
 		homeCoords = transform.position;
-		population = 0;
+		creaturesCreated = 0;
 		spawnRate = 3;
 	}
 
@@ -71,6 +75,7 @@ public class CreatureBase : MonoBehaviour {
 		creatureMovement.moveSpeed = (float) species.attributes ["moveSpeed"];
 		creatureMovement.moveRange = (float) species.attributes ["moveRange"];
 		creatureMovement.map = map;
+		creatureMovement.creatureTraits = species.traits;
 	}
 
 }

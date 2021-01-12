@@ -11,6 +11,7 @@ public class CreatureHealth : MonoBehaviour {
 	public int damageReturn;
 	public HashSet<string> creatureTraits;
 
+	public Species species;
 	private int ageRate;
 
 	// Use this for initialization
@@ -22,30 +23,25 @@ public class CreatureHealth : MonoBehaviour {
 	
 	// Update is called once per frame
 	public void healthUpdate () {
-		checkStatus ();
 	}
 
 	public void takeDamage (int damage) {
 		health -= damage;
-		destroyCreatureCheck ();
-	}
-
-	private void checkStatus () {
 		if (health <= 0) {
-			destroyCreatureCheck ();
+			destroyCreature ();
 		}
 	}
-		
 
 	private void updateAge () {
 		age++;
-		destroyCreatureCheck ();
+		if (age >= maxAge) {
+			destroyCreature();
+		}
 	}
 
-	private void destroyCreatureCheck () {
-		if (age == maxAge || health <= 0) {
-			Destroy (gameObject);
-		}
+	private void destroyCreature () {
+		Destroy (gameObject);
+		species.population--;
 	}
 
 }

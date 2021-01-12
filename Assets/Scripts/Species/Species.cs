@@ -10,6 +10,7 @@ public class Species : MonoBehaviour {
 	public int populationLimit;
 	public Vector2 startingPoint;
 	public CreatureBase creatureBase;
+	public List<CreatureBase> creatureBaseList;
 	public HashSet<string> traits;
 	public TileManager map;
 	public Dictionary<string, int> attributes = new Dictionary<string, int> 
@@ -26,14 +27,18 @@ public class Species : MonoBehaviour {
 		{"armor", 1},
 		{"damageReturn", 0},
 		{"moveInterval", 4},
-		{"moveSpeed", 4},
-		{"moveRange", 5}
+		{"moveSpeed", 3},
+		{"moveRange", 4}
 	};
 
-	private int population;
+	public int evolvePoints;
+
+	public int population;
+
+	private int evolveCount;
 	// Use this for initialization
 	void Start () {
-		initializeAttributes ();
+		initializeSpecies ();
 		spawnCreatureBase (startingPoint);
 	}
 
@@ -42,6 +47,7 @@ public class Species : MonoBehaviour {
 		newCreatureBase.species = this;
 		newCreatureBase.transform.parent = this.transform;
 		newCreatureBase.map = map;
+		creatureBaseList.Add(newCreatureBase);
 	}
 
 	//Update attribute by either a full value, a percentage of the previous value or complete replacement
@@ -61,13 +67,94 @@ public class Species : MonoBehaviour {
 				break;
 			}
 		}
+	
 	}
 
-	private void initializeAttributes () {
+	private void initializeSpecies () {
+		evolvePoints = 0;
+		evolveCount = 0;
 		population = 0;
+		traits = new HashSet<string>();
+	}
+
+	public void addEvolvePoints (int points) {
+		evolvePoints += points;
+		if(evolvePoints > evolveCount / 5 && evolvePoints % 5 == 0) {
+			spendEvolvePoints();
+		}
+	}
+
+	public void spendEvolvePoints () {
+		evolveCount++;
+
+		if (evolveCount % 5 == 0) {
+			evolveRandomTrait();
+		} else {
+			evolveRandomAttribute("random");
+		}  
+	}
+
+	public void evolveRandomTrait() {
+		Debug.Log("Species: " + speciesNumber + " Evolved trait ");
+	}
+	public void evolveRandomAttribute(string attribute) {
+
+		if (attribute == "random") {
+			List<string> attributeList = new List<string>(attributes.Keys);			
+			attribute = attributeList[Mathf.FloorToInt(Random.Range(0.00f, (float)attributeList.Count - 0.01f))];
+
+		}
+
+		switch (attribute) {
+			case "attackSpeed":
+				updateAttribute(attribute, 1, "full");
+				break;
+			case "projectileSpeed":
+				updateAttribute(attribute, 1, "full");
+				break;
+			case "damage":
+				updateAttribute(attribute, 2, "full");
+				break;
+			case "attackRange":
+				updateAttribute(attribute, 1, "full");
+				break;
+			case "foodCapacity":
+				updateAttribute(attribute, 1, "full");
+				break;
+			case "foodCollectRate":
+				updateAttribute(attribute, 1, "full");
+				break;
+			case "foodCollectAmount":
+				updateAttribute(attribute, 1, "full");
+				break;
+			case "health":
+				updateAttribute(attribute, 10, "full");
+				break;
+			case "maxAge":
+				updateAttribute(attribute, 10, "full");
+				break;
+			case "armor":
+				updateAttribute(attribute, 10, "full");
+				break;
+			case "damageReturn":
+				updateAttribute(attribute, 1, "full");
+				break;
+			case "moveInterval":
+				if(attributes["moveInterval"] > 1) {
+					updateAttribute(attribute, -1, "full");
+				}
+				break;
+			case "moveSpeed":
+					updateAttribute(attribute, 1, "full");
+				break;
+			case "moveRange":
+					updateAttribute(attribute, 1, "full");
+				break;
+			default:
+				break;
+		}
+
+		Debug.Log("Species: " + speciesNumber + " Evolved attribute " + attribute);
 	}
 		
 }
-
-
-//TODO- Add all of the creature attributes to the species for every time a newCreatureBase is added.
